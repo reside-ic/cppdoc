@@ -1,0 +1,18 @@
+Package: cppdoc
+Title: Document C++ Code
+Version: 0.1.0
+Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
+                    email = "rich.fitzjohn@gmail.com"),
+             person("Imperial College of Science, Technology and Medicine",
+                    role = "cph"))
+Description: Provides a bridge between doxygen's XML output and vignettes
+    written in R markdown.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+URL: https://github.com/reside-ic/cppdoc
+BugReports: https://github.com/reside-ic/cppdoc/issues
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
