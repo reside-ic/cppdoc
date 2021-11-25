@@ -74,9 +74,9 @@ doxygen <- R6::R6Class(
         d <- as.list(idx[which(i), ])
         xml <- extract_member(private$path, d$refid, d$member_refid)
         ret <- switch(kind,
-                      "function" = parse_function(xml, d$name),
-                      "enum" = parse_enum(xml, d$name),
-                      "typedef" = parse_typedef(xml, d$name))
+                      "function" = parse_function(xml, name),
+                      "enum" = parse_enum(xml, name),
+                      "typedef" = parse_typedef(xml, name))
       } else if (kind == "define") {
         ## This is almost the same as above, but we change the name.
         ## If we tweak how name_full is computed we don't need it.
@@ -127,7 +127,7 @@ extract_member <- function(path, refid, member_refid) {
 }
 
 
-parse_function <- function(x, namespace) {
+parse_function <- function(x, name) {
   tparam <- parse_templateparamlist(
     xml2::xml_find_first(x, "templateparamlist"))
 
@@ -136,7 +136,7 @@ parse_function <- function(x, namespace) {
   ## understand how.
   definition <- parse_definition(xml2::xml_find_first(x, "definition"))
   args <- parse_argsstring(xml2::xml_find_first(x, "argsstring"))
-  name <- parse_name(xml2::xml_find_first(x, "name"))
+  name <- name %||% parse_name(xml2::xml_find_first(x, "name"))
 
   ## Then the usage:
   brief <- parse_description(xml2::xml_find_first(x, "briefdescription"))
@@ -146,8 +146,7 @@ parse_function <- function(x, namespace) {
   ## * inbodydescription
   ## * location
 
-  list(namespace = namespace,
-       tparam = tparam,
+  list(tparam = tparam,
        name = name,
        value = value,
        args = args,
@@ -156,17 +155,16 @@ parse_function <- function(x, namespace) {
 }
 
 
-parse_typedef <- function(x, namespace) {
+parse_typedef <- function(x, name) {
   tparam <- parse_templateparamlist(
     xml2::xml_find_first(x, "templateparamlist"))
   definition <- parse_definition(xml2::xml_find_first(x, "definition"))
   args <- parse_argsstring(xml2::xml_find_first(x, "argsstring"))
-  name <- parse_name(xml2::xml_find_first(x, "name"))
+  name <- name %||% parse_name(xml2::xml_find_first(x, "name"))
   brief <- parse_description(xml2::xml_find_first(x, "briefdescription"))
   detail <- parse_description(xml2::xml_find_first(x, "detaileddescription"))
 
-  list(namespace = namespace,
-       tparam = tparam,
+  list(tparam = tparam,
        name = name,
        definition = definition,
        args = args,
@@ -175,15 +173,16 @@ parse_typedef <- function(x, namespace) {
 }
 
 
-parse_enum <- function(x, namespace) {
-  name <- parse_name(xml2::xml_find_first(x, "name"))
+parse_enum <- function(x, name) {
+  name <- name %||% parse_name(xml2::xml_find_first(x, "name"))
   enumvalues <- lapply(xml2::xml_find_all(x, "enumvalue"),
                        parse_enumvalue)
   brief <- parse_description(xml2::xml_find_first(x, "briefdescription"))
   detail <- parse_description(xml2::xml_find_first(x, "detaileddescription"))
+  strong <- xml2::xml_attr(x, "strong")
 
-  list(namespace = namespace,
-       name = name,
+  list(name = name,
+       strong = strong,
        enumvalues = enumvalues,
        brief = brief,
        detail = detail)
@@ -270,7 +269,7 @@ parse_para <- function(x) {
 
   kids <- xml2::xml_contents(x)
   ret <- lapply(kids, f)
-  simplify_text(ret)
+  list(type = "para", value = simplify_text(ret))
 }
 
 
@@ -386,7 +385,7 @@ simplify_text <- function(x) {
     return(x)
   }
   if (all(is_text)) {
-    return(join(x))
+    return(list(join(x)))
   }
 
   ## The most complex case; collapse adjacent text blocks:
