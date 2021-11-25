@@ -91,6 +91,20 @@ doxygen <- R6::R6Class(
         d <- as.list(idx[which(i), ])
         xml <- extract_member(private$path, d$refid, d$member_refid)
         ret <- parse_define(xml)
+      } else if (kind == "class") {
+        ## The class handling is really quite different, because we
+        ## need to build a complex thing.
+        idx <- private$index
+        i <- idx$name == name & idx$kind == kind
+        if (!any(i)) {
+          stop(sprintf("Did not find %s '%s'", kind, name))
+        }
+        if (sum(i) > 1) {
+          stop(sprintf("Disambiguate match for %s '%s'", kind, name))
+        }
+        d <- as.list(idx[which(i), ])
+        xml <- xml2::read_xml(file.path(private$path, paste0(d$refid, ".xml")))
+        ret <- parse_class(xml)
       } else {
         stop("writeme")
       }
@@ -197,6 +211,24 @@ parse_enumvalue <- function(x) {
 }
 
 
+## This is pretty poor, not coping with things like friends,
+## inheritance, protected methods etc.
+parse_class <- function(x) {
+  x <- xml2::xml_find_first(x, "compounddef")
+  name <- parse_name(xml2::xml_find_first(x, "compoundname"))
+  tparam <- parse_templateparamlist(
+    xml2::xml_find_first(x, "templateparamlist"))
+  brief <- parse_description(xml2::xml_find_first(x, "briefdescription"))
+  detail <- parse_description(xml2::xml_find_first(x, "detaileddescription"))
+  sections <- parse_sections(xml2::xml_find_all(x, "sectiondef"))
+  list(tparam = tparam,
+       name = name,
+       sections = sections,
+       brief = brief,
+       detail = detail)
+}
+
+
 xml_is_missing <- function(x) {
   inherits(x, "xml_missing")
 }
@@ -251,11 +283,13 @@ parse_computeroutput <- function(x) {
   ## This is where we could handle links, so long as we build nice
   ## anchors
   kids <- xml2::xml_contents(x)
-  ok <- length(kids) == 1 && xml2::xml_name(kids[[1]]) %in% c("ref", "text")
+  type <- xml2::xml_name(kids)
+  ok <- all(type %in% c("ref", "text"))
   if (!ok) {
     stop("computeroutput parse failure")
   }
-  value <- xml2::xml_text(kids[[1]])
+  ## TODO: discards link information
+  value <- paste(xml2::xml_text(kids), collapse = "")
   list(type = "text", value = sprintf("`%s`", value))
 }
 
@@ -308,7 +342,42 @@ parse_name <- function(x) {
 }
 
 
+parse_variable <- function(x) {
+  value <- linked_text(xml2::xml_find_first(x, "type"))
+  name <- parse_name(xml2::xml_find_first(x, "name"))
+  args <- parse_argsstring(xml2::xml_find_first(x, "argsstring"))
+  brief <- parse_description(xml2::xml_find_first(x, "briefdescription"))
+  detail <- parse_description(xml2::xml_find_first(x, "detaileddescription"))
+  list(name = name, value = value, args = args, brief = brief, detail = detail)
+}
+
+
+parse_sections <- function(x) {
+  ret <- list()
+  for (section in x) {
+    kind <- xml2::xml_attr(section, "kind")
+    if (grepl("^public-", kind)) {
+      ret[[kind]] <- lapply(xml2::xml_children(section), parse_memberdef)
+    }
+  }
+  ret
+}
+
+
+parse_memberdef <- function(x) {
+  kind <- xml2::xml_attr(x, "kind")
+  switch(kind,
+         "typedef" = parse_typedef(x, NULL),
+         "variable" = parse_variable(x, NULL),
+         "function" = parse_function(x, NULL))
+}
+
+
 simplify_text <- function(x) {
+  join <- function(x) {
+    list(type = "text",
+         value = paste(vcapply(x, "[[", "value"), collapse = ""))
+  }
   if (length(x) < 2) {
     return(x)
   }
@@ -317,8 +386,20 @@ simplify_text <- function(x) {
     return(x)
   }
   if (all(is_text)) {
-    return(list(type = "text",
-                value = paste(vcapply(x, "[[", "value"), collapse = "")))
+    return(join(x))
   }
-  browser()
+
+  ## The most complex case; collapse adjacent text blocks:
+  tmp <- rle(is_text)
+  i <- tmp$values & tmp$lengths > 1
+  if (any(i)) {
+    idx <- unname(split(seq_along(x), rep(seq_along(tmp$lengths), tmp$lengths)))
+    for (j in which(i)) {
+      k <- idx[[j]]
+      x[[k[[1]]]] <- join(x[k])
+    }
+    x <- x[-unlist(lapply(idx[i], "[", -1))]
+  }
+
+  x
 }
