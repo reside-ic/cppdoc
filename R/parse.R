@@ -54,18 +54,14 @@ doxygen <- R6::R6Class(
       private$path <- path
       private$index <- parse_index(path)
       private$index_members <- parse_index_members(private$index)
-      private$cache <- list()
     },
 
+    ## TODO: Probably work to get the file reads cached here, or just
+    ## open all of them up
     find = function(kind, name) {
-      key <- paste(kind, name, sep = "|")
-      if (key %in% names(private$cache)) {
-        return(private$cache[[key]])
-      }
-
       ## TODO: non-namespaced functions likely not to work here,
       ## unless we can find them some other way.
-     if (kind %in% c("function", "enum", "typedef")) {
+      if (kind %in% c("function", "enum", "typedef")) {
         idx <- private$index_members
         name_full <- paste(idx$name, idx$member_name, sep = "::")
         i <- name_full == name & idx$member_kind == kind
@@ -82,7 +78,8 @@ doxygen <- R6::R6Class(
                       "enum" = parse_enum(xml, d$name),
                       "typedef" = parse_typedef(xml, d$name))
       } else if (kind == "define") {
-        ## This is almost the same:
+        ## This is almost the same as above, but we change the name.
+        ## If we tweak how name_full is computed we don't need it.
         idx <- private$index_members
         i <- idx$member_name == name & idx$member_kind == kind
         if (!any(i)) {
@@ -98,7 +95,6 @@ doxygen <- R6::R6Class(
         stop("writeme")
       }
 
-      private$cache[[key]] <- ret
       ret
     }
   ),
@@ -106,8 +102,7 @@ doxygen <- R6::R6Class(
   private = list(
     path = NULL,
     index = NULL,
-    index_members = NULL,
-    cache = NULL
+    index_members = NULL
   ))
 
 
