@@ -65,7 +65,7 @@ doxygen <- R6::R6Class(
 
       ## TODO: non-namespaced functions likely not to work here,
       ## unless we can find them some other way.
-      if (kind == "function") {
+     if (kind %in% c("function", "enum", "typedef")) {
         idx <- private$index_members
         name_full <- paste(idx$name, idx$member_name, sep = "::")
         i <- name_full == name & idx$member_kind == kind
@@ -77,8 +77,23 @@ doxygen <- R6::R6Class(
         }
         d <- as.list(idx[which(i), ])
         xml <- extract_member(private$path, d$refid, d$member_refid)
-        ## TODO: fix namespace here, need to find this!
-        ret <- parse_function(xml, "dust::random")
+        ret <- switch(kind,
+                      "function" = parse_function(xml, d$name),
+                      "enum" = parse_enum(xml, d$name),
+                      "typedef" = parse_typedef(xml, d$name))
+      } else if (kind == "define") {
+        ## This is almost the same:
+        idx <- private$index_members
+        i <- idx$member_name == name & idx$member_kind == kind
+        if (!any(i)) {
+          stop(sprintf("Did not find %s '%s'", kind, name))
+        }
+        if (sum(i) > 1) {
+          stop(sprintf("Disambiguate match for %s '%s'", kind, name))
+        }
+        d <- as.list(idx[which(i), ])
+        xml <- extract_member(private$path, d$refid, d$member_refid)
+        ret <- parse_define(xml)
       } else {
         stop("writeme")
       }
@@ -110,9 +125,9 @@ parse_function <- function(x, namespace) {
   value <- linked_text(xml2::xml_find_first(x, "type"))
   ## definition and args somehow optional here, don't really
   ## understand how.
-  definition <- xml2::xml_text(xml2::xml_find_first(x, "definition"))
-  args <- xml2::xml_text(xml2::xml_find_first(x, "argsstring"))
-  name <- xml2::xml_text(xml2::xml_find_first(x, "name"))
+  definition <- parse_definition(xml2::xml_find_first(x, "definition"))
+  args <- parse_argsstring(xml2::xml_find_first(x, "argsstring"))
+  name <- parse_name(xml2::xml_find_first(x, "name"))
 
   ## Then the usage:
   brief <- parse_description(xml2::xml_find_first(x, "briefdescription"))
@@ -129,6 +144,61 @@ parse_function <- function(x, namespace) {
        args = args,
        brief = brief,
        detail = detail)
+}
+
+
+parse_typedef <- function(x, namespace) {
+  tparam <- parse_templateparamlist(
+    xml2::xml_find_first(x, "templateparamlist"))
+  definition <- parse_definition(xml2::xml_find_first(x, "definition"))
+  args <- parse_argsstring(xml2::xml_find_first(x, "argsstring"))
+  name <- parse_name(xml2::xml_find_first(x, "name"))
+  brief <- parse_description(xml2::xml_find_first(x, "briefdescription"))
+  detail <- parse_description(xml2::xml_find_first(x, "detaileddescription"))
+
+  list(namespace = namespace,
+       tparam = tparam,
+       name = name,
+       definition = definition,
+       args = args,
+       brief = brief,
+       detail = detail)
+}
+
+
+parse_enum <- function(x, namespace) {
+  name <- parse_name(xml2::xml_find_first(x, "name"))
+  enumvalues <- lapply(xml2::xml_find_all(x, "enumvalue"),
+                       parse_enumvalue)
+  brief <- parse_description(xml2::xml_find_first(x, "briefdescription"))
+  detail <- parse_description(xml2::xml_find_first(x, "detaileddescription"))
+
+  list(namespace = namespace,
+       name = name,
+       enumvalues = enumvalues,
+       brief = brief,
+       detail = detail)
+}
+
+
+parse_define <- function(x) {
+  name <- parse_name(xml2::xml_find_first(x, "name"))
+  value <- linked_text(xml2::xml_find_first(x, "initializer"))
+  brief <- parse_description(xml2::xml_find_first(x, "briefdescription"))
+  detail <- parse_description(xml2::xml_find_first(x, "detaileddescription"))
+
+  list(name = name,
+       value = value,
+       brief = brief,
+       detail = detail)
+}
+
+
+parse_enumvalue <- function(x) {
+  name <- parse_name(xml2::xml_find_first(x, "name"))
+  brief <- parse_description(xml2::xml_find_first(x, "briefdescription"))
+  detail <- parse_description(xml2::xml_find_first(x, "detaileddescription"))
+  list(name = name, brief = brief, detail = detail)
 }
 
 
@@ -220,12 +290,26 @@ parse_parameternamelist <- function(x) {
 
 
 parse_templateparamlist <- function(x) {
-  tparam <- xml2::xml_find_first(x, "templateparamlist")
   if (xml_is_missing(x)) {
     return(NULL)
   }
-  lapply(xml2::xml_find_all(tparam, "param/type"),
+  lapply(xml2::xml_find_all(x, "param/type"),
          linked_text)
+}
+
+
+parse_argsstring <- function(x) {
+  xml2::xml_text(x)
+}
+
+
+parse_definition <- function(x) {
+  xml2::xml_text(x)
+}
+
+
+parse_name <- function(x) {
+  xml2::xml_text(x)
 }
 
 
