@@ -16,7 +16,14 @@ vcapply <- function(X, FUN, ...) { # nolint
 collector <- function(init = character(0)) {
   env <- new.env(parent = emptyenv())
   env$res <- init
-  list(add = function(x) env$res <- c(env$res, x),
+  add <- function(x, new_block = FALSE) {
+    add_break <- new_block && length(env$res) > 0 && length(x) > 0
+    env$res <- c(env$res,
+                 if (add_break) "" else NULL,
+                 x)
+  }
+
+  list(add = add,
        empty = function() length(env$res) == 0,
        get = function() env$res)
 }

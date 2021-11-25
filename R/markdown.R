@@ -1,19 +1,15 @@
 do_render_function <- function(x) {
   out <- collector()
 
-  out$add(md_code_block(c(
-    do_render_tparam(x$tparam),
-    paste(trimws(x$value), collapse = " "),
-    paste0(x$name, x$args))))
-
-  if (!is.null(x$brief)) {
-    stop("writeme")
+  decl <- paste0(x$name, x$args)
+  if (length(x$value) > 0) {
+    decl <- paste(paste(trimws(x$value), collapse = " "), decl)
   }
 
-  for (el in x$detail) {
-    out$add("")
-    out$add(do_render_para(el))
-  }
+  out$add(md_code_block(c(do_render_tparam(x$tparam), decl)))
+
+  out$add(do_render_brief(x$brief), TRUE)
+  out$add(do_render_detail(x$detail), TRUE)
 
   out$get()
 }
@@ -58,17 +54,14 @@ do_render_enum <- function(x) {
 
 
 do_render_typedef <- function(x) {
-  if (!is.null(x$brief)) {
-    stop("Write rendering for brief")
-  }
-  if (!is.null(x$detail)) {
-    stop("Write rendering for detail")
-  }
-
   out <- collector()
   out$add(md_code_block(c(
     do_render_tparam(x$tparam),
-    x$definition)))
+    x$definition_short)))
+
+  out$add(do_render_brief(x$brief), TRUE)
+  out$add(do_render_detail(x$detail), TRUE)
+
   out$get()
 }
 
@@ -111,6 +104,22 @@ do_render_para <- function(x) {
 }
 
 
+do_render_class <- function(x) {
+  out <- collector()
+  out$add(md_code_block(c(do_render_tparam(x$tparam),
+                          paste("class", x$name))))
+
+  out$add(do_render_brief(x$brief), TRUE)
+  out$add(do_render_detail(x$detail), TRUE)
+
+  for (s in x$sections) {
+    out$add(do_render_section(s), TRUE)
+  }
+
+  out$get()
+}
+
+
 do_render_paras <- function(x) {
   out <- collector()
   for (i in seq_along(x)) {
@@ -145,6 +154,48 @@ do_render_enumvalue <- function(x) {
 }
 
 
+do_render_detail <- function(x) {
+  if (is.null(x)) {
+    return(NULL)
+  }
+  out <- collector()
+  for (el in x) {
+    out$add(do_render_para(el), TRUE)
+  }
+
+  drop_trailing_whitespace(out$get())
+}
+
+
+## Might distinguish this later by adding a div/class
+do_render_brief <- do_render_detail
+
+
+do_render_section <- function(x) {
+  info <- switch(
+    x$kind,
+    "public-type" = list("Public types", do_render_typedef),
+    "public-func" = list("Public methods", do_render_function),
+    "public-static-func" = list("Public static methods", do_render_function),
+    "public-attrib" = list("Public fields", do_render_field),
+    "public-static-attrib" = list("Public static fields", do_render_field))
+  label <- info[[1]]
+  render <- info[[2]]
+
+  out <- collector()
+  out$add(md_bold(label))
+  for (el in x$value) {
+    out$add(render(el), TRUE)
+  }
+  out$get()
+}
+
+
+do_render_field <- function(x) {
+  browser()
+}
+
+
 md_code_block <- function(code) {
   c("```c++", code, "```")
 }
@@ -157,4 +208,16 @@ md_bold <- function(string) {
 
 md_code <- function(string) {
   sprintf("`%s`", string)
+}
+
+
+drop_trailing_whitespace <- function(x) {
+  i <- grepl("^\\s*$", x)
+  if (all(i)) {
+    return(NULL)
+  }
+  if (!any(i)) {
+    return(x)
+  }
+  x[seq_along(i) <= max(which(!i))]
 }

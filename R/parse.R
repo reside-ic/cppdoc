@@ -161,12 +161,19 @@ parse_typedef <- function(x, name) {
   definition <- parse_definition(xml2::xml_find_first(x, "definition"))
   args <- parse_argsstring(xml2::xml_find_first(x, "argsstring"))
   name <- name %||% parse_name(xml2::xml_find_first(x, "name"))
+  type <- linked_text(xml2::xml_find_first(x, "name"))
   brief <- parse_description(xml2::xml_find_first(x, "briefdescription"))
   detail <- parse_description(xml2::xml_find_first(x, "detaileddescription"))
+
+  ## We need to derive another form of the usage:
+  stopifnot(grepl("^using", definition))
+  definition_short <- sprintf("using %s = %s", name, type)
+  ## otherwise sprintf("typedef %s %s", type, name)
 
   list(tparam = tparam,
        name = name,
        definition = definition,
+       definition_short = definition_short,
        args = args,
        brief = brief,
        detail = detail)
@@ -341,7 +348,7 @@ parse_name <- function(x) {
 }
 
 
-parse_variable <- function(x) {
+parse_field <- function(x) {
   value <- linked_text(xml2::xml_find_first(x, "type"))
   name <- parse_name(xml2::xml_find_first(x, "name"))
   args <- parse_argsstring(xml2::xml_find_first(x, "argsstring"))
@@ -356,7 +363,10 @@ parse_sections <- function(x) {
   for (section in x) {
     kind <- xml2::xml_attr(section, "kind")
     if (grepl("^public-", kind)) {
-      ret[[kind]] <- lapply(xml2::xml_children(section), parse_memberdef)
+      ret[[length(ret) + 1]] <- list(
+        type = "section",
+        kind = kind,
+        value = lapply(xml2::xml_children(section), parse_memberdef))
     }
   }
   ret
@@ -367,7 +377,7 @@ parse_memberdef <- function(x) {
   kind <- xml2::xml_attr(x, "kind")
   switch(kind,
          "typedef" = parse_typedef(x, NULL),
-         "variable" = parse_variable(x, NULL),
+         "variable" = parse_field(x, NULL),
          "function" = parse_function(x, NULL))
 }
 
