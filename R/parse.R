@@ -348,9 +348,9 @@ parse_name <- function(x) {
 }
 
 
-parse_field <- function(x) {
+parse_field <- function(x, name) {
   value <- linked_text(xml2::xml_find_first(x, "type"))
-  name <- parse_name(xml2::xml_find_first(x, "name"))
+  name <- name %||% parse_name(xml2::xml_find_first(x, "name"))
   args <- parse_argsstring(xml2::xml_find_first(x, "argsstring"))
   brief <- parse_description(xml2::xml_find_first(x, "briefdescription"))
   detail <- parse_description(xml2::xml_find_first(x, "detaileddescription"))
