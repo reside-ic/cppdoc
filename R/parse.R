@@ -58,7 +58,7 @@ doxygen <- R6::R6Class(
 
     ## TODO: Probably work to get the file reads cached here, or just
     ## open all of them up
-    find = function(kind, name) {
+    find = function(kind, name, args = NULL) {
       ## TODO: non-namespaced functions likely not to work here,
       ## unless we can find them some other way.
       if (kind %in% c("function", "enum", "typedef")) {
@@ -69,9 +69,9 @@ doxygen <- R6::R6Class(
           stop(sprintf("Did not find %s '%s'", kind, name))
         }
         if (sum(i) > 1) {
-          stop(sprintf("Disambiguate match for %s '%s'", kind, name))
+          ## stop(sprintf("Disambiguate match for %s '%s'", kind, name))
         }
-        d <- as.list(idx[which(i), ])
+        d <- as.list(idx[which(i)[[1]], ])
         xml <- extract_member(private$path, d$refid, d$member_refid)
         ret <- switch(kind,
                       "function" = parse_function(xml, name),
@@ -86,9 +86,9 @@ doxygen <- R6::R6Class(
           stop(sprintf("Did not find %s '%s'", kind, name))
         }
         if (sum(i) > 1) {
-          stop(sprintf("Disambiguate match for %s '%s'", kind, name))
+          ## stop(sprintf("Disambiguate match for %s '%s'", kind, name))
         }
-        d <- as.list(idx[which(i), ])
+        d <- as.list(idx[which(i)[[1]], ]) # TODO
         xml <- extract_member(private$path, d$refid, d$member_refid)
         ret <- parse_define(xml)
       } else if (kind == "class") {
@@ -100,9 +100,9 @@ doxygen <- R6::R6Class(
           stop(sprintf("Did not find %s '%s'", kind, name))
         }
         if (sum(i) > 1) {
-          stop(sprintf("Disambiguate match for %s '%s'", kind, name))
+          ## stop(sprintf("Disambiguate match for %s '%s'", kind, name))
         }
-        d <- as.list(idx[which(i), ])
+        d <- as.list(idx[which(i)[[1]], ])
         xml <- xml2::read_xml(file.path(private$path, paste0(d$refid, ".xml")))
         ret <- parse_class(xml)
       } else {
@@ -254,7 +254,7 @@ linked_text <- function(x) {
 
 parse_description <- function(x) {
   kids <- xml2::xml_contents(x)
-  nm <- vcapply(kids, xml2::xml_name)
+  nm <- xml2::xml_name(kids)
   if (all(nm == "text") && !nzchar(trimws(xml2::xml_text(x)))) {
     return(NULL)
   }
@@ -270,7 +270,11 @@ parse_para <- function(x) {
     switch(tag,
            text = parse_text(el),
            computeroutput = parse_computeroutput(el),
+           bold = parse_bold(el),
            parameterlist = parse_parameterlist(el),
+           simplesect = parse_simplesect(el),
+           itemizedlist = parse_itemizedlist(el),
+           ## there's also orderedlist to work with here, v similar
            stop(sprintf("unsupported tag '%s'", tag)))
   }
 
@@ -286,17 +290,38 @@ parse_text <- function(x) {
 
 
 parse_computeroutput <- function(x) {
-  ## This is where we could handle links, so long as we build nice
-  ## anchors
-  kids <- xml2::xml_contents(x)
-  type <- xml2::xml_name(kids)
-  ok <- all(type %in% c("ref", "text"))
-  if (!ok) {
-    stop("computeroutput parse failure")
+  parse_markup(x, "`", "computeroutput")
+}
+
+
+parse_bold <- function(x) {
+  parse_markup(x, "**", "bold")
+}
+
+
+parse_ref <- function(x) {
+  list(type = "text", value = xml2::xml_text(x))
+}
+
+
+parse_markup <- function(x, md, name) {
+  ## Similar to parse_para
+  f <- function(el) {
+    tag <- xml2::xml_name(el)
+    switch(tag,
+           text = parse_text(el),
+           ref = parse_ref(el),
+           stop(sprintf("unsupported tag '%s' within markup '%s'", tag, name)))
   }
-  ## TODO: discards link information
-  value <- paste(xml2::xml_text(kids), collapse = "")
-  list(type = "text", value = sprintf("`%s`", value))
+
+  kids <- xml2::xml_contents(x)
+  value <- simplify_text(lapply(kids, f))
+  if (length(value) == 1 && value[[1]]$type == "text") {
+    value[[1]]$value <- sprintf("%s%s%s", md, value[[1]]$value, md)
+    return(value[[1]])
+  }
+
+  stop("Handle complex markup")
 }
 
 
@@ -305,6 +330,32 @@ parse_parameterlist <- function(x) {
   value <- lapply(kids, parse_parameteritem)
   kind <- xml2::xml_attr(x, "kind")
   list(type = "parameters", value = value, kind = kind)
+}
+
+
+parse_simplesect <- function(x) {
+  kind <- xml2::xml_attr(x, "kind")
+  ## TODO: There might be a title here
+  kids <- xml2::xml_children(x)
+  if (!all(xml2::xml_name(kids) == "para")) {
+    stop("Handle simplesect with title")
+  }
+  value <- lapply(kids, parse_para)
+  list(type = "simplesect",
+       kind = kind,
+       value = value)
+}
+
+
+parse_itemizedlist <- function(x) {
+  items <- lapply(xml2::xml_children(x), parse_listitem)
+  list(type = "itemizedlist",
+       items = items)
+}
+
+
+parse_listitem <- function(x) {
+  lapply(xml2::xml_children(x), parse_para)
 }
 
 
