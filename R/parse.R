@@ -19,6 +19,11 @@ parse_index_compound <- function(x) {
                         refid = vcapply(members, "[[", "refid"),
                         kind = vcapply(members, "[[", "kind"),
                         stringsAsFactors = FALSE)
+  ## The doxygen output for dust here gives me an unexpected duplicate
+  ## for one enum, which can be removed by using unique() below.  This
+  ## is not needed on all versions (seen on 1.8.19 but not 1.8.17)
+  members <- unique(members)
+  rownames(members) <- NULL
 
   list(name = name,
        refid = attrs[["refid"]],
