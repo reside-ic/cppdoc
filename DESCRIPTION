@@ -16,6 +16,8 @@ BugReports: https://github.com/reside-ic/cppdoc/issues
 SystemRequirements: doxygen
 Imports:
     R6,
+    commonmark,
+    knitr,
     xml2
 Suggests:
     testthat (>= 3.0.0)
