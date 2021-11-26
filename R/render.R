@@ -1,14 +1,3 @@
-render_entry <- function(x, kind) {
-  switch(kind,
-         "function" = render_function(x$name, x$args),
-         "define" = render_define(x$name),
-         "enum" = render_enum(x$name),
-         "typedef" = render_typedef(x$name),
-         "class" = render_class(x$name),
-         "example" = render_example(x$name))
-}
-
-
 render_function <- function(x) {
   out <- collector()
 

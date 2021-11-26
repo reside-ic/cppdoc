@@ -34,9 +34,7 @@ cppdoc_unregister <- function() {
 cppdoc_engine <- function(options) {
   out <- collector()
   for (expr in parse(text = options$code)) {
-    out$collect(
-      eval(parse_rmd_cppdoc_entry(expr), asNamespace("cppdoc")),
-      TRUE)
+    out$collect(eval(expr, asNamespace("cppdoc")), TRUE)
   }
   out$get()
 }
