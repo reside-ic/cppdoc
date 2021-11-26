@@ -1,23 +1,21 @@
 parse_rmd_cppdoc <- function(path) {
-  engines <- knitr::knit_engines$get()
-  on.exit(knitr::knit_engines$restore(engines))
+  ## It should be possible to better here with xpath, but not sure how
+  ## to make that work because of namespacing weordness
+  xml <- xml2::read_xml(commonmark::markdown_xml(readLines(path),
+                                                 sourcepos = TRUE))
+  blocks <- xml2::xml_find_all(xml, "//d1:code_block")
+  type <- xml2::xml_attr(blocks, "info")
+  re <- "\\s*\\{\\s*cppdoc.*\\}"
+  code <- lapply(blocks[grepl(re, type)], xml2::xml_text)
 
-  ## This won't work well for any Rmd that sets its own engines. Of
-  ## course we're going to go back through and fill things in shortly
+  ## TODO: better reporting here, ideally; see the sourcepos argument
   out <- collector_list()
-  skip <- rep(list(function(options) NULL), length(engines))
-  names(skip) <- names(engines)
-  knitr::knit_engines$restore(skip)
-  knitr::knit_engines$set(cppdoc = function(options) {
-    for (el in parse(text = options$code)) {
+  for (x in code) {
+    for (el in parse(text = x)) {
       out$add(parse_rmd_cppdoc_entry(el))
     }
-    NULL
-  })
-  knitr::knit(path, output = tempfile(), quiet = TRUE)
+  }
 
-  ## TODO: this needs making more robust, I think, as we'll need to
-  ## cope with errors with more reporting.
   out$get()
 }
 
@@ -56,7 +54,7 @@ cppdoc_typedef <- function(name) {
 }
 
 
-cppdoc_class <- function(name, methods = TRUE) {
+cppdoc_class <- function(name, members = TRUE) {
   stop("writeme")
 }
 
@@ -66,6 +64,6 @@ cppdoc_enum <- function(name) {
 }
 
 
-cppdoc_example <- function(name) {
+cppdoc_example <- function(name, input = TRUE, output = TRUE) {
   stop("writeme")
 }
