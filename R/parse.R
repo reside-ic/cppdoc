@@ -87,7 +87,7 @@ parse_typedef <- function(x, name) {
   definition <- parse_definition(xml2::xml_find_first(x, "definition"))
   args <- parse_argsstring(xml2::xml_find_first(x, "argsstring"))
   name <- name %||% parse_name(xml2::xml_find_first(x, "name"))
-  type <- linked_text(xml2::xml_find_first(x, "name"))
+  type <- linked_text(xml2::xml_find_first(x, "type"))
   brief <- parse_description(xml2::xml_find_first(x, "briefdescription"))
   detail <- parse_description(xml2::xml_find_first(x, "detaileddescription"))
 

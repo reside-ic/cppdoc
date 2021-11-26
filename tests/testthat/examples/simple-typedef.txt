@@ -1,0 +1,12 @@
+cppdoc >> ex::real_type
+---
+```c++
+using ex::real_type = double
+```
+
+This type is documented. 
+cppdoc >> ex::int
+---
+```c++
+using ex::int_type = int
+```

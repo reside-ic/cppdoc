@@ -3,11 +3,6 @@
 }
 
 
-vlapply <- function(X, FUN, ...) { # nolint
-  vapply(X, FUN, logical(1), ...)
-}
-
-
 vcapply <- function(X, FUN, ...) { # nolint
   vapply(X, FUN, character(1), ...)
 }
@@ -41,6 +36,7 @@ collector_list <- function() {
 }
 
 
-drop_whitespace <- function(x) {
-  gsub(" +", "", x)
+set_names <- function(x, nms) {
+  names(x) <- nms
+  x
 }

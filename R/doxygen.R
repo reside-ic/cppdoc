@@ -8,10 +8,18 @@ doxygen_locate <- function() {
 }
 
 
-doxygen_run <- function(path, dest = tempfile(), quiet = FALSE) {
+doxygen_run <- function(path, dest = tempfile(), quiet = FALSE,
+                        standalone = FALSE) {
   bin <- doxygen_locate()
   dest <- tempfile()
-  cfg <- doxygen_configuration(path, dest)
+  if (standalone) {
+    package <- "cppdoc"
+    path_include <- path
+  } else {
+    package <- read.dcf(file.path(path, "DESCRIPTION"), "Package")[[1]]
+    path_include <- file.path(path, "inst/include")
+  }
+  cfg <- doxygen_configuration(package, path_include, dest)
   tmp <- tempfile()
   on.exit(unlink(tmp))
   writeLines(cfg, tmp)
@@ -27,17 +35,15 @@ doxygen_run <- function(path, dest = tempfile(), quiet = FALSE) {
 }
 
 
-doxygen_configuration <- function(path, dest) {
-  path <- normalizePath(path, mustWork = TRUE)
-  package <- read.dcf(file.path(path, "DESCRIPTION"), "Package")[[1]]
+doxygen_configuration <- function(package, path, dest) {
   cfg <- list(project_name = package,
               output_directory = dest,
               extract_all = "YES",
-              input = file.path(path, "inst/include"),
+              input = normalizePath(path, mustWork = TRUE),
               file_patterns = "*.hpp",
               recursive = "YES",
               generate_html = "NO",
-              generate_latext = "NO",
+              generate_latex = "NO",
               generate_xml = "YES",
               xml_output = ".",
               have_dot = "NO")
