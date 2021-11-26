@@ -27,3 +27,8 @@ collector <- function(init = character(0)) {
        empty = function() length(env$res) == 0,
        get = function() env$res)
 }
+
+
+drop_whitespace <- function(x) {
+  gsub(" +", "", x)
+}

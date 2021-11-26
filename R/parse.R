@@ -45,88 +45,6 @@ parse_index_members <- function(index) {
 }
 
 
-doxygen <- R6::R6Class(
-  "doxygen",
-  cloneable = FALSE,
-
-  public = list(
-    initialize = function(path) {
-      private$path <- path
-      private$index <- parse_index(path)
-      private$index_members <- parse_index_members(private$index)
-    },
-
-    ## TODO: Probably work to get the file reads cached here, or just
-    ## open all of them up
-    find = function(kind, name, args = NULL) {
-      ## TODO: non-namespaced functions likely not to work here,
-      ## unless we can find them some other way.
-      if (kind %in% c("function", "enum", "typedef")) {
-        idx <- private$index_members
-        name_full <- paste(idx$name, idx$member_name, sep = "::")
-        i <- name_full == name & idx$member_kind == kind
-        if (!any(i)) {
-          stop(sprintf("Did not find %s '%s'", kind, name))
-        }
-        if (sum(i) > 1) {
-          ## stop(sprintf("Disambiguate match for %s '%s'", kind, name))
-        }
-        d <- as.list(idx[which(i)[[1]], ])
-        xml <- extract_member(private$path, d$refid, d$member_refid)
-        ret <- switch(kind,
-                      "function" = parse_function(xml, name),
-                      "enum" = parse_enum(xml, name),
-                      "typedef" = parse_typedef(xml, name))
-      } else if (kind == "define") {
-        ## This is almost the same as above, but we change the name.
-        ## If we tweak how name_full is computed we don't need it.
-        idx <- private$index_members
-        i <- idx$member_name == name & idx$member_kind == kind
-        if (!any(i)) {
-          stop(sprintf("Did not find %s '%s'", kind, name))
-        }
-        if (sum(i) > 1) {
-          ## stop(sprintf("Disambiguate match for %s '%s'", kind, name))
-        }
-        d <- as.list(idx[which(i)[[1]], ]) # TODO
-        xml <- extract_member(private$path, d$refid, d$member_refid)
-        ret <- parse_define(xml)
-      } else if (kind == "class") {
-        ## The class handling is really quite different, because we
-        ## need to build a complex thing.
-        idx <- private$index
-        i <- idx$name == name & idx$kind == kind
-        if (!any(i)) {
-          stop(sprintf("Did not find %s '%s'", kind, name))
-        }
-        if (sum(i) > 1) {
-          ## stop(sprintf("Disambiguate match for %s '%s'", kind, name))
-        }
-        d <- as.list(idx[which(i)[[1]], ])
-        xml <- xml2::read_xml(file.path(private$path, paste0(d$refid, ".xml")))
-        ret <- parse_class(xml)
-      } else {
-        stop("writeme")
-      }
-
-      ret
-    }
-  ),
-
-  private = list(
-    path = NULL,
-    index = NULL,
-    index_members = NULL
-  ))
-
-
-extract_member <- function(path, refid, member_refid) {
-  xml <- xml2::read_xml(file.path(path, paste0(refid, ".xml")))
-  query <- sprintf('//memberdef[@id = "%s"]', member_refid)
-  xml2::xml_find_first(xml, query)
-}
-
-
 parse_function <- function(x, name) {
   tparam <- parse_templateparamlist(
     xml2::xml_find_first(x, "templateparamlist"))
@@ -137,6 +55,8 @@ parse_function <- function(x, name) {
   definition <- parse_definition(xml2::xml_find_first(x, "definition"))
   args <- parse_argsstring(xml2::xml_find_first(x, "argsstring"))
   name <- name %||% parse_name(xml2::xml_find_first(x, "name"))
+
+  param <- lapply(xml2::xml_find_all(x, "param"), parse_param)
 
   ## Then the usage:
   brief <- parse_description(xml2::xml_find_first(x, "briefdescription"))
@@ -149,6 +69,7 @@ parse_function <- function(x, name) {
   list(tparam = tparam,
        name = name,
        value = value,
+       param = param,
        args = args,
        brief = brief,
        detail = detail)
@@ -196,8 +117,8 @@ parse_enum <- function(x, name) {
 }
 
 
-parse_define <- function(x) {
-  name <- parse_name(xml2::xml_find_first(x, "name"))
+parse_define <- function(x, name) {
+  name <- name %||% parse_name(xml2::xml_find_first(x, "name"))
   value <- linked_text(xml2::xml_find_first(x, "initializer"))
   brief <- parse_description(xml2::xml_find_first(x, "briefdescription"))
   detail <- parse_description(xml2::xml_find_first(x, "detaileddescription"))
@@ -219,9 +140,9 @@ parse_enumvalue <- function(x) {
 
 ## This is pretty poor, not coping with things like friends,
 ## inheritance, protected methods etc.
-parse_class <- function(x) {
+parse_class <- function(x, name) {
   x <- xml2::xml_find_first(x, "compounddef")
-  name <- parse_name(xml2::xml_find_first(x, "compoundname"))
+  name <- name %||% parse_name(xml2::xml_find_first(x, "compoundname"))
   tparam <- parse_templateparamlist(
     xml2::xml_find_first(x, "templateparamlist"))
   brief <- parse_description(xml2::xml_find_first(x, "briefdescription"))
@@ -379,6 +300,7 @@ parse_templateparamlist <- function(x) {
   if (xml_is_missing(x)) {
     return(NULL)
   }
+  ## TODO: This probably needs more work, unfortunately
   lapply(xml2::xml_find_all(x, "param/type"),
          linked_text)
 }
@@ -430,6 +352,31 @@ parse_memberdef <- function(x) {
          "typedef" = parse_typedef(x, NULL),
          "variable" = parse_field(x, NULL),
          "function" = parse_function(x, NULL))
+}
+
+
+parse_param <- function(x) {
+  ## There could be more here, though I don't see them in our case:
+  ## defvalue: default value
+  nms <- xml2::xml_name(xml2::xml_contents(x))
+  req <- c("declname", "type")
+  opt <- "defval"
+  ok <- all(req %in% nms) && length(setdiff(nms, c(req, opt))) == 0
+  if (!ok) {
+    stop("Generalise parse_param")
+  }
+  list(type = parse_type(xml2::xml_find_first(x, "type")),
+       name = parse_declname(xml2::xml_find_first(x, "declname")))
+}
+
+
+parse_type <- function(x) {
+  linked_text(x)
+}
+
+
+parse_declname <- function(x) {
+  xml2::xml_text(x)
 }
 
 
