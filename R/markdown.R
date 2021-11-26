@@ -39,28 +39,28 @@ parse_rmd_cppdoc_entry <- function(x) {
 }
 
 
-cppdoc_function <- function(name, args = NULL) {
-  stop("writeme")
+cppdoc_function <- function(name, args = NULL, package = NULL) {
+  render_function(index_find(package, "function", name, args))
 }
 
 
-cppdoc_define <- function(name) {
-  stop("writeme")
+cppdoc_define <- function(name, package = NULL) {
+  render_define(index_find(package, "define", name))
 }
 
 
-cppdoc_typedef <- function(name) {
-  stop("writeme")
+cppdoc_typedef <- function(name, package = NULL) {
+  render_typedef(index_find(package, "typedef", name))
 }
 
 
-cppdoc_class <- function(name, members = TRUE) {
-  stop("writeme")
+cppdoc_class <- function(name, package = NULL) {
+  render_class(index_find(package, "class", name))
 }
 
 
-cppdoc_enum <- function(name) {
-  stop("writeme")
+cppdoc_enum <- function(name, package = NULL) {
+  render_typedef(index_find(package, "enum", name))
 }
 
 

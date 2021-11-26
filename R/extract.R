@@ -94,10 +94,6 @@ extract_function <- function(doxygen, name, args) {
     return(ret)
   }
 
-  normalise_arglist <- function(x) {
-    paste(gsub(" ", "", x), collapse = "\r")
-  }
-
   ## This is going to be nasty, going to use a heuristic for now:
   found <- vcapply(ret, function(x)
     normalise_arglist(vcapply(x$param, "[[", "type")))
@@ -143,4 +139,9 @@ check_index <- function(i, kind, name) {
     stop(sprintf("Unexpected ambiguous match for %s '%s'", kind, name))
   }
   which(i)
+}
+
+
+normalise_arglist <- function(x) {
+  paste(gsub(" ", "", x), collapse = "\r")
 }
