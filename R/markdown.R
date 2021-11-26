@@ -46,7 +46,7 @@ cppdoc_class <- function(name, package = NULL) {
 ##' @export
 ##' @rdname cppdoc_markdown
 cppdoc_enum <- function(name, package = NULL) {
-  render_typedef(index_find(package, "enum", name))
+  render_enum(index_find(package, "enum", name))
 }
 
 
@@ -56,7 +56,7 @@ cppdoc_enum <- function(name, package = NULL) {
 ##' @param input,output Logical, indicating if input or output should
 ##'   be produced.
 cppdoc_example <- function(name, input = TRUE, output = TRUE) {
-  "** example support coming soon **"
+  "**example support coming soon**"
 }
 
 

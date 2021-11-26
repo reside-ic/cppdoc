@@ -38,7 +38,7 @@ render_enum <- function(x) {
   ## changes the "strong" field here.
   type <- if (x$strong == "yes") "enum class" else "enum"
   out <- collector()
-  out$add(sprintf("%s %s", type, x$name))
+  out$add(md_code_block(sprintf("%s %s", type, x$name)))
 
   if (length(x$enumvalues) > 0) {
     out$add("")

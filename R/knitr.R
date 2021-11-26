@@ -34,7 +34,7 @@ cppdoc_unregister <- function() {
 cppdoc_engine <- function(options) {
   out <- collector()
   for (expr in parse(text = options$code)) {
-    out$collect(eval(expr, asNamespace("cppdoc")), TRUE)
+    out$add(eval(expr, asNamespace("cppdoc")), TRUE)
   }
-  out$get()
+  paste(out$get(), collapse = "\n")
 }
