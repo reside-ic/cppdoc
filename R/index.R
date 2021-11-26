@@ -1,4 +1,24 @@
-cppdoc_index <- function(path, quiet = FALSE, quiet_doxygen = TRUE) {
+##' Build an index for a package.  This requires that the doxygen is
+##' installed and available.
+##'
+##' @title Create package index
+##'
+##' @param path Path to the package, default is the current directory.
+##'
+##' @param quiet_doxygen Logical, indicating if doxygen should be run
+##'   quietly.  It's pretty verbose so is set to be quiet by default.
+##'
+##' @return Invisibly, the package index, which is a `data.frame` with
+##'   class `cppdoc_index`.  It is also written into the package
+##'   directory at `inst/cppdoc/index.rds`.
+##'
+##' @export
+cppdoc_index <- function(path = ".", quiet_doxygen = TRUE) {
+  path_description <- file.path(path, "DESCRIPTION")
+  if (!file.exists(path_description)) {
+    stop("This does not look like a package")
+  }
+
   message("Scanning vignettes for usage")
   path_vignettes <- file.path(path, "vignettes")
   ## So the rule would be look for vignettes that include
