@@ -33,3 +33,66 @@ test_that("can read simple typedef", {
     clean_whitespace(render_typedef(int)),
     ref[["ex::int"]])
 })
+
+
+test_that("can read simple function", {
+  path <- doxygen_run_one("examples/simple-function.hpp")
+  ref <- read_reference("examples/simple-function.txt")
+  contents <- data.frame(kind = "function", name = "ex::add")
+  res <- extract(path, contents)
+
+  expect_length(res, 1)  
+
+  x <- res[[1]]
+  expect_null(x$tparam)
+  expect_equal(x$name, "ex::add")
+  expect_equal(x$value, "double")
+  expect_equal(x$param, list(list(type = "double", name = "x"),
+                             list(type = "double", name = "y")))
+  expect_equal(x$args, "(double x, double y)")
+  expect_null(x$brief)
+
+  expect_equal(
+    clean_whitespace(render_function(x)),
+    ref[["ex::add"]])
+})
+
+
+test_that("can read simple define", {
+  path <- doxygen_run_one("examples/simple-define.hpp")
+  ref <- read_reference("examples/simple-define.txt")
+  contents <- data.frame(kind = "define", name = "CONSTANT")
+  res <- extract(path, contents)
+
+  expect_length(res, 1)  
+
+  x <- res[[1]]
+  expect_equal(x$name, "CONSTANT")
+  expect_equal(x$value, "1")
+  expect_null(x$detail)
+
+  expect_equal(
+    clean_whitespace(render_define(x)),
+    ref[["CONSTANT"]])
+})
+
+
+test_that("can read simple enum", {
+  path <- doxygen_run_one("examples/simple-enum.hpp")
+  ref <- read_reference("examples/simple-enum.txt")
+  contents <- data.frame(kind = "enum", name = "ex::fruit")
+  res <- extract(path, contents)
+
+  expect_length(res, 1)  
+
+  x <- res[[1]]
+  expect_equal(x$name, "ex::fruit")
+  expect_equal(x$strong, "yes")
+  expect_equal(vcapply(x$enumvalues, function(x) x$name),
+               c("apple", "banana", "cherry"))
+  expect_null(x$detail)
+
+  expect_equal(
+    clean_whitespace(render_enum(x)),
+    ref[["ex::fruit"]])
+})

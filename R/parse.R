@@ -161,16 +161,6 @@ parse_class <- function(x, name) {
 }
 
 
-xml_is_missing <- function(x) {
-  inherits(x, "xml_missing")
-}
-
-
-xml_is_found <- function(x) {
-  !xml_is_missing(x)
-}
-
-
 ## For now discarding link information, we can add it back later,
 ## though not sure how really
 linked_text <- function(x) {

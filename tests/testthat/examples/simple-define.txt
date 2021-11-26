@@ -1,0 +1,7 @@
+cppdoc >> CONSTANT
+---
+```c++
+#define CONSTANT 1
+```
+
+Some constant.

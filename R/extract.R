@@ -90,7 +90,9 @@ extract_function <- function(doxygen, name, args) {
     parse_function(extract_member(doxygen, j), name))
 
   ## Simple case, no match required:
-  if (length(ret) == 1 && length(args) == 1 && length(args[[1]]) == 0) {
+  simple <- length(ret) == 1 &&
+    (length(args) == 0 || length(args) == 1 && length(args[[1]]) == 0)
+  if (simple) {
     return(ret)
   }
 

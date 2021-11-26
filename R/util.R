@@ -40,3 +40,8 @@ set_names <- function(x, nms) {
   names(x) <- nms
   x
 }
+
+
+xml_is_missing <- function(x) {
+  inherits(x, "xml_missing")
+}

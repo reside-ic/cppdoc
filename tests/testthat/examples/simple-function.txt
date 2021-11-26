@@ -1,0 +1,13 @@
+cppdoc >> ex::add
+---
+```c++
+double ex::add(double x, double y)
+```
+
+Add two numbers together.
+
+**Parameters**
+
+* **`x`**: The first number
+
+* **`y`**: The second number

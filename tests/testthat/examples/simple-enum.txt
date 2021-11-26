@@ -1,0 +1,24 @@
+cppdoc >> ex::fruit
+---
+```c++
+enum class ex::fruit
+```
+
+Types of fruit available.
+
+**Values**
+
+```c++
+enumerator apple
+```
+Somewhat tasty.
+
+```c++
+enumerator banana
+```
+Quite bland.
+
+```c++
+enumerator cherry
+```
+Delicious.

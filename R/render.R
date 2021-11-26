@@ -16,29 +16,23 @@ render_function <- function(x) {
 
 
 render_define <- function(x) {
-  if (!is.null(x$brief)) {
-    stop("Write rendering for brief")
-  }
-  if (!is.null(x$detail)) {
-    stop("Write rendering for detail")
-  }
-
-  md_code_block(sprintf("#define %s %s", x$name, x$value))
+  out <- collector()
+  out$add(md_code_block(sprintf("#define %s %s", x$name, x$value)))
+  out$add(render_brief(x$brief), TRUE)
+  out$add(render_detail(x$detail), TRUE)
+  out$get()
 }
 
 
 render_enum <- function(x) {
-  if (!is.null(x$brief)) {
-    stop("Write rendering for brief")
-  }
-  if (!is.null(x$detail)) {
-    stop("Write rendering for detail")
-  }
   ## TODO: I *think* but am not sure that 'enum class' vs 'enum'
   ## changes the "strong" field here.
   type <- if (x$strong == "yes") "enum class" else "enum"
   out <- collector()
   out$add(md_code_block(sprintf("%s %s", type, x$name)))
+
+  out$add(render_brief(x$brief), TRUE)
+  out$add(render_detail(x$detail), TRUE)
 
   if (length(x$enumvalues) > 0) {
     out$add("")
