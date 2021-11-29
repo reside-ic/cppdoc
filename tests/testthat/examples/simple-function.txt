@@ -11,3 +11,9 @@ Add two numbers together.
 * **`x`**: The first number
 
 * **`y`**: The second number
+
+
+
+**Returns**
+
+A number
