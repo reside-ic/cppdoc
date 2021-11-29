@@ -242,12 +242,12 @@ parse_markup <- function(x, md, name) {
 
   kids <- xml2::xml_contents(x)
   value <- simplify_text(lapply(kids, f))
-  if (length(value) == 1 && value[[1]]$type == "text") {
-    value[[1]]$value <- sprintf("%s%s%s", md, value[[1]]$value, md)
-    return(value[[1]])
-  }
 
-  stop("Handle complex markup")
+  unimplemented(length(value) != 1 || value[[1]]$type != "text",
+                "parse complex markup")
+
+  value[[1]]$value <- sprintf("%s%s%s", md, value[[1]]$value, md)
+  value[[1]]
 }
 
 
@@ -263,9 +263,9 @@ parse_simplesect <- function(x) {
   kind <- xml2::xml_attr(x, "kind")
   ## TODO: There might be a title here
   kids <- xml2::xml_children(x)
-  if (!all(xml2::xml_name(kids) == "para")) {
-    stop("Handle simplesect with title")
-  }
+  unimplemented(!all(xml2::xml_name(kids) == "para"),
+                "simplesect with title")
+
   value <- lapply(kids, parse_para)
   list(type = "simplesect",
        kind = kind,
@@ -367,9 +367,8 @@ parse_param <- function(x) {
   req <- c("declname", "type")
   opt <- "defval"
   ok <- all(req %in% nms) && length(setdiff(nms, c(req, opt))) == 0
-  if (!ok) {
-    stop("Generalise parse_param")
-  }
+  unimplemented(!ok, "generalise parse_param")
+
   list(type = parse_type(xml2::xml_find_first(x, "type")),
        name = parse_declname(xml2::xml_find_first(x, "declname")))
 }

@@ -30,3 +30,17 @@ test_that("overloaded functions", {
     types(extract_function(doxygen, "ex::f", list(character(0)))),
     list(character(0)))
 })
+
+
+test_that("error if object not found", {
+  path <- doxygen_run_one("examples/typedef-simple.hpp")
+  doxygen <- doxygen_contents$new(path)
+  expect_error(
+    extract_typedef(doxygen, "ex::unknown"),
+    "Did not find typedef 'ex::unknown'")
+  ## This one can't be triggered easily, but I am certain we'll see it
+  ## eventually:
+  expect_error(
+    check_index(c(TRUE, FALSE, TRUE, FALSE), "typedef", "ex::mytype"),
+    "Unexpected ambiguous match for typedef 'ex::mytype'")
+})

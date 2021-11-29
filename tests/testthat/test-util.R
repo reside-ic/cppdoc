@@ -10,3 +10,11 @@ test_that("msg prints messages only when asked", {
   expect_silent(msg("hello", TRUE))
   expect_message(msg("hello", FALSE), "hello")
 })
+
+
+test_that("unimplemented can assert", {
+  expect_silent(unimplemented(FALSE, "something"))
+  expect_error(
+    unimplemented(TRUE, "something"),
+    "cppdoc unimplemented: something")
+})

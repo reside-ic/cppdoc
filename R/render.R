@@ -63,10 +63,10 @@ render_typedef <- function(x) {
 ## TODO: Looks like we're inconsistent throughout as to if we pass
 ## $value or not, would be good to check that.
 render_para <- function(x) {
+  unimplemented(x$type != "para",
+                "render_para sent non-para object (never happens?)")
+
   out <- collector()
-  if (x$type != "para") {
-    stop("check this")
-  }
   for (el in x$value) {
     value <- switch(el$type,
                     "text" = el$value,

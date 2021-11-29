@@ -46,3 +46,10 @@ msg <- function(text, quiet) {
     message(text)
   }
 }
+
+
+unimplemented <- function(test, reason) {
+  if (test) {
+    stop(paste("cppdoc unimplemented:", reason))
+  }
+}
