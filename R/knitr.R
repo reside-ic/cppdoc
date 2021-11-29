@@ -16,7 +16,7 @@
 cppdoc_register <- function(package) {
   ret <- knitr::knit_engines$set(cppdoc = cppdoc_engine)
   if (!is.null(package)) {
-    index_load(package)
+    ## index_load(package) # can safely load this of course
     knitr::opts_chunk$set(cppdoc_package = package)
   }
   invisible(ret)
