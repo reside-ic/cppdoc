@@ -99,10 +99,7 @@ render_class <- function(x) {
 render_paras <- function(x) {
   out <- collector()
   for (i in seq_along(x)) {
-    if (i > 1) {
-      out$add("")
-    }
-    out$add(render_para(x[[i]]))
+    out$add(render_para(x[[i]]), TRUE)
   }
   out$get()
 }
@@ -121,12 +118,10 @@ render_tparam <- function(x) {
 
 render_enumvalue <- function(x) {
   ## TODO: add a div around this, probably around many other things...
-  if (!is.null(x$detail)) {
-    stop("write support")
-  }
   ## TODO: might not want enumerator here?
   c(md_code_block(sprintf("enumerator %s", x$name)),
-    render_paras(x$brief))
+    render_paras(x$brief),
+    render_paras(x$detail))
 }
 
 
