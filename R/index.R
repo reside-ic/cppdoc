@@ -32,6 +32,9 @@ cppdoc_index_package <- function(path = ".", quiet = FALSE,
 
   ## Don't yet support examples, drop them here
   contents <- contents[contents$kind != "example", ]
+  if (nrow(contents) == 0) {
+    stop(sprintf("Did not find any cppdoc usage in package '%s'", package))
+  }
 
   index <- index_build(path_include, package, contents, quiet, quiet_doxygen)
 
