@@ -19,7 +19,7 @@ cppdoc_class(name, package = NULL)
 
 cppdoc_enum(name, package = NULL)
 
-cppdoc_example(name, input = TRUE, output = TRUE)
+cppdoc_example(name, input = TRUE, output = TRUE, package = NULL)
 }
 \arguments{
 \item{name}{The name of the entity to render}

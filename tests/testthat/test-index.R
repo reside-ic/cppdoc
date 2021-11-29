@@ -5,7 +5,7 @@ test_that("can build simple index, and find things in it", {
     doxygen <- doxygen_contents$new(path)
     extract_function(doxygen, ...)[[1L]]
   }
-  
+
   contents <- data.frame(kind = "function",
                          name = c("ex::add", "ex::f", "ex::f"),
                          args = I(list(NULL, "double", c("double", "double"))),

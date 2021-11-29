@@ -14,7 +14,7 @@ test_that("locate doxygen on path if found", {
   testthat::skip_if_not_installed("mockery")
   testthat::skip_if_not_installed("withr")
 
-  mock_sys_which <- mockery::mock("/path/to/doxygen", cycle= TRUE)
+  mock_sys_which <- mockery::mock("/path/to/doxygen", cycle = TRUE)
   mockery::stub(doxygen_locate, "Sys.which", mock_sys_which)
   expect_equal(doxygen_locate(), "/path/to/doxygen")
 

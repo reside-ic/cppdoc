@@ -92,7 +92,7 @@ test_that("can read simple enum", {
   contents <- data.frame(kind = "enum", name = "ex::fruit")
   res <- extract(path, contents)
 
-  expect_length(res, 1)  
+  expect_length(res, 1)
 
   x <- res[[1]]
   expect_equal(x$name, "ex::fruit")

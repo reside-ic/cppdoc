@@ -12,9 +12,11 @@ test_that("can always unregister knitr engine", {
 
 
 test_that("register and unresgister", {
-  cppdoc_register("cppdoc")
+  cache$packages[["thepkg"]] <- test_index()
+
+  cppdoc_register("thepkg")
   expect_identical(knitr::knit_engines$get("cppdoc"), cppdoc_engine)
-  expect_equal(knitr::opts_chunk$get("cppdoc_package"), "cppdoc")
+  expect_equal(knitr::opts_chunk$get("cppdoc_package"), "thepkg")
   cppdoc_unregister()
   expect_null(knitr::knit_engines$get("cppdoc"))
   expect_null(knitr::opts_chunk$get("cppdoc_package"))
