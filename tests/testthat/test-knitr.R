@@ -19,3 +19,29 @@ test_that("register and unresgister", {
   expect_null(knitr::knit_engines$get("cppdoc"))
   expect_null(knitr::opts_chunk$get("cppdoc_package"))
 })
+
+
+test_that("run basic chunk", {
+  index <- test_index()
+  options <- list(
+    code = 'cppdoc_function("ex::add", package = cache$test_index)')
+  expect_equal(
+    cppdoc_engine(options),
+    paste(cppdoc_function("ex::add", package = cache$test_index),
+          collapse = "\n"))
+})
+
+
+test_that("run basic chunk with multiple outputs", {
+  index <- test_index()
+  options <- list(
+    code = c(
+      'cppdoc_function("ex::add", package = cache$test_index)',
+      'cppdoc_define("CONSTANT", package = cache$test_index)'))
+  expect_equal(
+    cppdoc_engine(options),
+    paste(c(cppdoc_function("ex::add", package = cache$test_index),
+            "",
+            cppdoc_define("CONSTANT", package = cache$test_index)),
+          collapse = "\n"))
+})
