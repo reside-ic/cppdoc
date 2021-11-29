@@ -17,13 +17,13 @@ cppdoc_examples_run <- function(path) {
 example_run <- function(filename, path_include) {
   input <- readLines(filename)
   path_include <- normalizePath(path_include, mustWork = TRUE)
-  
+
   tmp <- tempfile()
   dir.create(tmp)
   on.exit(unlink(tmp, recursive = TRUE))
 
   file_copy(filename, tmp)
-  
+
   src <- basename(filename)
   exe <- sub("\\.[[:alnum:]]+$", "", basename(filename))
 
