@@ -102,35 +102,6 @@ index_find <- function(index, kind, name, args = NULL) {
 }
 
 
-index_search_rmd <- function(path, quiet) {
-  msg("Scanning .Rmd files for usage", quiet)
-  files <- dir(path, pattern = "\\.Rmd$", recursive = TRUE)
-
-  contents <- collector_list()
-  ## TODO: eventually should track track which goes where, though this
-  ## requires additional work to work out which are ones we point at
-  ## for cross-referencing.
-  for (f in files) {
-    filename <- file.path(path, f)
-    txt <- readLines(filename)
-    if (any(grepl("cppdoc::cppdoc_register", txt))) {
-      x <- parse_rmd_cppdoc(filename)
-      msg(sprintf("  - found %d entries in '%s'", length(x), f), quiet)
-      contents$append(x)
-    }
-  }
-
-  ret <- data.frame(
-    kind = vcapply(contents$get(), "[[", "kind"),
-    name = vcapply(contents$get(), "[[", "name"),
-    args = I(lapply(contents$get(), "[[", "args")))
-  ret <- unique(ret)
-  rownames(ret) <- NULL
-  msg(sprintf("  - total %d unique entries", nrow(ret)), quiet)
-  ret
-}
-
-
 index_build <- function(path, package, contents, quiet, quiet_doxygen) {
   msg("Running doxygen", quiet)
   doxygen_xml <- doxygen_run(path, package, quiet = quiet_doxygen)
