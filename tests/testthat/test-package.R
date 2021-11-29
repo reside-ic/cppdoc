@@ -1,4 +1,6 @@
 test_that("can compile simple package", {
+  skip_if_no_doxygen()
+
   tmp <- tempfile()
   dir.create(tmp)
   on.exit(unlink(tmp, recursive = TRUE))

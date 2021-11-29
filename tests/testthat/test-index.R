@@ -1,4 +1,6 @@
 test_that("can build simple index, and find things in it", {
+  skip_if_no_doxygen()
+
   cmp <- function(path, ...) {
     path <- doxygen_run_one(path)
     on.exit(unlink(path, recursive = TRUE))
