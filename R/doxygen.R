@@ -1,6 +1,5 @@
 doxygen_locate <- function() {
-  ## We should accept some envvar for doxygen here
-  path <- unname(Sys.which("doxygen"))
+  path <- Sys.getenv("CPPDOC_DOXYGEN", unname(Sys.which("doxygen")))
   if (!nzchar(path)) {
     stop("Did not locate doxygen")
   }
@@ -10,7 +9,7 @@ doxygen_locate <- function() {
 
 doxygen_run <- function(path, name, dest = tempfile(), quiet = FALSE) {
   bin <- doxygen_locate()
-  dest <- tempfile()
+
   cfg <- doxygen_configuration(name, path, dest)
   tmp <- tempfile()
   on.exit(unlink(tmp))
@@ -20,6 +19,8 @@ doxygen_run <- function(path, name, dest = tempfile(), quiet = FALSE) {
 
   code <- system2(bin, tmp, stdout = output, stderr = output)
   if (code != 0) {
+    ## TODO: at this point of course we've lost our logs.  Consider
+    ## the system3 we have somewhere for this problem.
     stop("Error running doxygen")
   }
 

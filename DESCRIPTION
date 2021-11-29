@@ -20,5 +20,7 @@ Imports:
     knitr,
     xml2
 Suggests:
-    testthat (>= 3.0.0)
+    mockery,
+    testthat (>= 3.0.0),
+    withr
 Config/testthat/edition: 3
