@@ -18,3 +18,9 @@ test_that("unimplemented can assert", {
     unimplemented(TRUE, "something"),
     "cppdoc unimplemented: something")
 })
+
+
+test_that("copying files throws an error", {
+  expect_error(file_copy(tempfile(), tempfile()),
+               "Error copying files")
+})
