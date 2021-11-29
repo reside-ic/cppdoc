@@ -1,0 +1,9 @@
+```c++
+void ex::f()
+```
+
+A function that does amazing things:
+
+* this thing
+* that thing
+* and another thing
