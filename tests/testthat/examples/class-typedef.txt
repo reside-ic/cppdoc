@@ -1,0 +1,13 @@
+```c++
+class ex::test
+```
+
+**Public types**
+
+```c++
+using real_type = double
+```
+
+```c++
+typedef int int_type
+```

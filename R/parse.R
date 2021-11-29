@@ -91,10 +91,13 @@ parse_typedef <- function(x, name) {
   brief <- parse_description(xml2::xml_find_first(x, "briefdescription"))
   detail <- parse_description(xml2::xml_find_first(x, "detaileddescription"))
 
-  ## We need to derive another form of the usage:
-  stopifnot(grepl("^using", definition))
-  definition_short <- sprintf("using %s = %s", name, type)
-  ## otherwise sprintf("typedef %s %s", type, name)
+  ## TODO: presence of @typedef in the docstrings might break this.
+  ## TODO: function pointers are hard here
+  if (grepl("^using", definition)) {
+    definition_short <- sprintf("using %s = %s", name, type)
+  } else {
+    definition_short <- sprintf("typedef %s %s", type, name)
+  }
 
   list(tparam = tparam,
        name = name,

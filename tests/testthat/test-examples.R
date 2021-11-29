@@ -116,3 +116,20 @@ test_that("Can render class fields", {
 
   expect_equal(clean_whitespace(render_class(x)), ref)
 })
+
+
+test_that("Can render class typedefs", {
+  path <- doxygen_run_one("examples/class-typedef.hpp")
+  ref <- read_reference("examples/class-typedef.txt")
+  contents <- data.frame(kind = "class", name = "ex::test")
+  x <- extract(path, contents)[[1]]
+
+  expect_equal(x$name, "ex::test")
+
+  expect_length(x$sections, 1)
+  expect_equal(x$sections[[1]]$kind, "public-type")
+  expect_equal(x$sections[[1]]$value[[1]]$name, "real_type")
+  expect_equal(x$sections[[1]]$value[[2]]$name, "int_type")
+
+  expect_equal(clean_whitespace(render_class(x)), ref)
+})
