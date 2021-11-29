@@ -96,3 +96,25 @@ test_that("can read simple enum", {
     clean_whitespace(render_enum(x)),
     ref[["ex::fruit"]])
 })
+
+
+test_that("can read simple enum", {
+  path <- doxygen_run_one("examples/simple-class.hpp")
+  ref <- read_reference("examples/simple-class.txt")
+  contents <- data.frame(kind = "class", name = "ex::test")
+  res <- extract(path, contents)
+
+  expect_length(res, 1)
+
+  x <- res[[1]]
+  expect_null(x$tparam)
+  expect_equal(x$name, "ex::test")
+
+  expect_length(x$sections, 1)
+  expect_equal(x$sections[[1]]$kind, "public-func")
+  expect_null(x$detail)
+
+  expect_equal(
+    clean_whitespace(render_class(x)),
+    ref[["ex::test"]])
+})

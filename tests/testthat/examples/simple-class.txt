@@ -1,0 +1,37 @@
+cppdoc >> ex::test
+---
+```c++
+class ex::test
+```
+
+A simple class with two methods.
+
+**Public methods**
+
+```c++
+test(double a, int b)
+```
+
+Construct object
+
+**Parameters**
+
+* **`a`**: First parameter
+
+* **`b`**: Second parameter
+
+```c++
+double m1()
+```
+
+A public method.
+
+```c++
+double m2(int x)
+```
+
+A public method with an argument
+
+**Parameters**
+
+* **`x`**: Something else
