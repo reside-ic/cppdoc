@@ -36,3 +36,36 @@ test_that("can compile simple package", {
   expect_true(file.exists(path_index))
   expect_equal(readRDS(path_index), index)
 })
+
+
+test_that("can load a package index", {
+  skip_if_not_installed("mockery")
+  cache$packages <- list()
+  tmp <- tempfile()
+  on.exit(unlink(tmp))
+  saveRDS(test_index(), tmp)
+  mock_system_file <- mockery::mock(tmp)
+  mockery::stub(index_load, "system.file", mock_system_file)
+  index <- index_load("thepkg")
+  expect_identical(index, test_index())
+
+  mockery::expect_called(mock_system_file, 1)
+  expect_equal(
+    mockery::mock_args(mock_system_file)[[1]],
+    list("cppdoc/index.rds", package = "thepkg", mustWork = TRUE))
+  expect_identical(cache$packages$thepkg, index)
+})
+
+
+test_that("can get indices", {
+  cppdoc_unregister()
+  cache$packages <- list()
+  cache$packages[["thepkg"]] <- test_index()
+  expect_identical(index_get("thepkg"), test_index())
+  expect_error(
+    index_get(NULL),
+    "'package' not provided, but no default registered for knitr")
+  cppdoc_register("thepkg")
+  expect_identical(index_get(NULL), test_index())
+  expect_error(index_get(TRUE), "Invalid object provided for index")
+})

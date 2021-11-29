@@ -46,8 +46,10 @@ cppdoc_index_package <- function(path = ".", quiet = FALSE,
 }
 
 
-index_load <- function(package, reload = FALSE) {
-  if (reload || !(package %in% names(cache$packages))) {
+index_load <- function(package) {
+  ## TODO: better error if loading not possible, this is R's silly
+  ## error
+  if (!(package %in% names(cache$packages))) {
     path <- system.file("cppdoc/index.rds", package = package, mustWork = TRUE)
     cache$packages[[package]] <- readRDS(path)
   }
@@ -61,11 +63,12 @@ index_get <- function(object) {
   } else if (is.null(object)) {
     package <- knitr::opts_chunk$get("cppdoc_package")
     if (is.null(package)) {
+      ## This error designed to work with the functions in markdown.R
       stop("'package' not provided, but no default registered for knitr")
     }
     index_load(package)
   } else if (is.character(object)) {
-    index_load(package)
+    index_load(object)
   } else {
     stop("Invalid object provided for index")
   }
