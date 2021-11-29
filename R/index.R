@@ -16,20 +16,21 @@
 ##'   directory at `inst/cppdoc/index.rds`.
 ##'
 ##' @export
-cppdoc_index_package <- function(path = ".", quiet = FALSE,
+cppdoc_index_package <- function(path = ".",
+                                 quiet = FALSE,
                                  quiet_doxygen = TRUE) {
   package <- check_package(path)
   path_include <- check_package_include(path)
+  path_examples <- check_package_examples(path)
 
   contents <- index_search_rmd(path, quiet)
 
-  ## Don't yet support examples, drop them here
-  contents <- contents[contents$kind != "example", ]
   if (nrow(contents) == 0) {
     stop(sprintf("Did not find any cppdoc usage in package '%s'", package))
   }
 
-  index <- index_build(path_include, package, contents, quiet, quiet_doxygen)
+  index <- index_build(path_include, path_examples, package,
+                       contents, quiet, quiet_doxygen)
 
   dest <- file.path(path, "inst/cppdoc/index.rds")
   dir.create(dirname(dest), FALSE, TRUE)
@@ -101,11 +102,13 @@ index_find <- function(index, kind, name, args = NULL) {
 }
 
 
-index_build <- function(path, package, contents, quiet, quiet_doxygen) {
+index_build <- function(path_include, path_examples, package,
+                        contents, quiet, quiet_doxygen) {
   msg("Running doxygen", quiet)
-  doxygen_xml <- doxygen_run(path, package, quiet = quiet_doxygen)
+  doxygen_xml <- doxygen_run(path_include, package, quiet = quiet_doxygen)
+  examples <- cppdoc_examples_run(path_examples, path_include, package, quiet)
   msg(sprintf("Extracting %d definitions", nrow(contents)), quiet)
-  value <- extract(doxygen_xml, contents)
+  value <- extract(doxygen_xml, examples, contents)
   index <- cbind(contents, value = I(value))
   class(index) <- c("cppdoc_index", class(index))
   index

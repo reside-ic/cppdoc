@@ -11,3 +11,4 @@
 "typedef","ex::real_type",
 "typedef","ex::int_type",
 "define","CONSTANT"
+"example","function-simple"

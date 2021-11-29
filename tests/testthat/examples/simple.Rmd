@@ -19,3 +19,7 @@ Examples for testing `cppdoc`
 ```{cppdoc}
 cppdoc_function("ex::add")
 ```
+
+```{cppdoc}
+cppdoc_example("function-simple")
+```

@@ -12,7 +12,7 @@ test_that("can build simple index, and find things in it", {
                          name = c("ex::add", "ex::f", "ex::f"),
                          args = I(list(NULL, "double", c("double", "double"))),
                          stringsAsFactors = FALSE)
-  index <- index_build("examples", "cpptest", contents, TRUE, TRUE)
+  index <- index_build("examples", NULL, "cpptest", contents, TRUE, TRUE)
   expect_s3_class(index, "cppdoc_index")
   expect_equal(nrow(index), 3)
 
@@ -43,10 +43,10 @@ test_that("Can locate calls in a knitr document", {
   file.copy("examples/simple.Rmd", tmp)
 
   contents <- index_search_rmd(tmp, TRUE)
-  expect_equal(nrow(contents), 1L)
-  expect_equal(contents$kind, "function")
-  expect_equal(contents$name, "ex::add")
-  expect_equal(contents$args, I(list(NULL)))
+  expect_equal(nrow(contents), 2L)
+  expect_equal(contents$kind, c("function", "example"))
+  expect_equal(contents$name, c("ex::add", "function-simple"))
+  expect_equal(contents$args, I(list(NULL, NULL)))
 })
 
 

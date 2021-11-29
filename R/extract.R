@@ -27,7 +27,7 @@ doxygen_contents <- R6::R6Class(
   ))
 
 
-extract <- function(path, contents) {
+extract <- function(path, examples, contents) {
   doxygen <- doxygen_contents$new(path)
 
   ret <- vector("list", nrow(contents))
@@ -39,7 +39,9 @@ extract <- function(path, contents) {
   for (x in contents_split) {
     kind <- x$kind[[1]]
     name <- x$name[[1]]
-    if (kind == "function") {
+    if (kind == "example") {
+      ret[[x$index]] <- extract_example(examples, name)
+    } else if (kind == "function") {
       ret[x$index] <- extract_function(doxygen, name, x$args)
     } else {
       ret[[x$index]] <- switch(kind,
@@ -51,6 +53,15 @@ extract <- function(path, contents) {
     }
   }
 
+  ret
+}
+
+
+extract_example <- function(examples, name) {
+  ret <- examples[[name]]
+  if (is.null(ret)) {
+    stop(sprintf("Did not find example '%s'", name))
+  }
   ret
 }
 

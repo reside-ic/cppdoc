@@ -1,6 +1,7 @@
 test_that("Can run example", {
   res <- example_run("examples_cpp/function-simple.cpp", "examples")
-  expect_equal(names(res), c("input", "output"))
+  expect_equal(names(res), c("name", "input", "output"))
+  expect_equal(res$name, "function-simple")
   expect_equal(res$input, readLines("examples_cpp/function-simple.cpp"))
   expect_equal(res$output, c("2 + 2 = 4", "1 + 4 = 5"))
 })
@@ -23,11 +24,14 @@ test_that("can compile simple package", {
   dir.create(path_examples, FALSE, TRUE)
   file_copy("examples_cpp/function-simple.cpp", path_examples)
 
-  suppressMessages(cppdoc_examples_run(tmp))
+  res <- cppdoc_examples_run(path_examples, path_include, "cpptest.ex1", TRUE)
 
-  path_rds <- file.path(tmp, "inst/cppdoc/examples/function-simple.rds")
-  expect_true(file.exists(path_rds))
   expect_equal(
-    readRDS(path_rds),
-    example_run("examples_cpp/function-simple.cpp", "examples"))
+    res,
+    list("function-simple" =
+           example_run("examples_cpp/function-simple.cpp", "examples")))
+
+  path_rds <- file.path(tmp, "inst/cppdoc/examples/index.rds")
+  expect_true(file.exists(path_rds))
+  expect_equal(readRDS(path_rds), res)
 })

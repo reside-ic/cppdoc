@@ -33,7 +33,8 @@ test_index <- function() {
     nms <- contents$name[contents$kind == "function"]
     i <- contents$name %in% nms[duplicated(nms)] & contents$kind == "function"
     contents$args[i] <- contents_args[i]
-    cache$test_index <- index_build("examples", "cpptest", contents, TRUE, TRUE)
+    cache$test_index <- index_build("examples", "examples_cpp", "cpptest",
+                                    contents, TRUE, TRUE)
   }
   cache$test_index
 }

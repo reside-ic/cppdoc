@@ -4,7 +4,7 @@ test_that("can format markdown lists", {
   path <- doxygen_run_one("examples/markdown-itemizedlist.hpp")
   ref <- read_reference("examples/markdown-itemizedlist.txt")
   contents <- data.frame(kind = "function", name = "ex::f")
-  x <- extract(path, contents)[[1L]]
+  x <- extract(path, NULL, contents)[[1L]]
   expect_equal(
     clean_whitespace(render_function(x)), ref)
 })
@@ -14,7 +14,7 @@ test_that("Can apply basic formatting to markdown strings", {
   path <- doxygen_run_one("examples/markdown-formatting.hpp")
   ref <- read_reference("examples/markdown-formatting.txt")
   contents <- data.frame(kind = "function", name = "ex::f")
-  x <- extract(path, contents)[[1L]]
+  x <- extract(path, NULL, contents)[[1L]]
   expect_equal(
     clean_whitespace(render_function(x)), ref)
 })
