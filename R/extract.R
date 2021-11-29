@@ -96,14 +96,22 @@ extract_function <- function(doxygen, name, args) {
     return(ret)
   }
 
+  if (length(ret) > 1 && is.null(args)) {
+    stop(sprintf(
+      "Can't decide which '%s' overload you want; args needed to disambiguate",
+      name))
+  }
+
   ## This is going to be nasty, going to use a heuristic for now:
   found <- vcapply(ret, function(x)
     normalise_arglist(vcapply(x$param, "[[", "type")))
-  requested <- vcapply(args, normalise_arglist)
+  requested <- vcapply(args, normalise_arglist, USE.NAMES = FALSE)
+
   j <- match(requested, found)
 
   if (any(is.na(j))) {
-    stop("Some overloads were not resolved")
+    stop(sprintf("Did not find function overload '%s(%s)'",
+                 name, paste(args, collapse = ", ")))
   }
 
   ret[j]
