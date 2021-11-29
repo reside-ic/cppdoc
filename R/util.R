@@ -27,11 +27,11 @@ collector <- function() {
 collector_list <- function() {
   env <- new.env(parent = emptyenv())
   env$res <- list()
-  add <- function(x) {
-    env$res <- c(env$res, list(x))
+  append <- function(x) {
+    env$res <- c(env$res, x)
   }
-
-  list(add = add,
+  list(add = function(x) append(list(x)),
+       append = append,
        get = function() env$res)
 }
 
@@ -44,4 +44,11 @@ set_names <- function(x, nms) {
 
 xml_is_missing <- function(x) {
   inherits(x, "xml_missing")
+}
+
+
+msg <- function(text, quiet) {
+  if (!quiet) {
+    message(text)
+  }
 }

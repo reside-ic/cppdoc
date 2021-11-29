@@ -3,7 +3,7 @@ doxygen_run_one <- function(path, quiet = TRUE) {
   on.exit(unlink(tmp, recursive = TRUE))
   dir.create(tmp)
   file.copy(path, tmp)
-  doxygen_run(tmp, quiet = quiet, standalone = TRUE)
+  doxygen_run(tmp, "cppdoc", quiet = quiet)
 }
 
 
