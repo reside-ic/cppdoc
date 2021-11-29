@@ -24,14 +24,14 @@ test_that("can compile simple package", {
     "This package does not have any include files")
 
   dir.create(path_include, FALSE, TRUE)
-  file.copy("examples/function-simple.hpp", path_include)
+  file.copy("examples_hpp/function-simple.hpp", path_include)
 
   expect_error(
     cppdoc_index_package(tmp, quiet = TRUE),
     "Did not find any cppdoc usage in package 'cpptest.ex1'")
 
   dir.create(path_vignettes, FALSE, TRUE)
-  file_copy("examples/simple.Rmd", path_vignettes)
+  file_copy("examples_rmd/simple.Rmd", path_vignettes)
 
   dir.create(path_examples, FALSE, TRUE)
   file_copy("examples_cpp/function-simple.cpp", path_examples)

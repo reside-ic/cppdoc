@@ -1,5 +1,5 @@
 test_that("overloaded functions", {
-  path <- doxygen_run_one("examples/function-overload.hpp")
+  path <- doxygen_run_one("examples_hpp/function-overload.hpp")
   doxygen <- doxygen_contents$new(path)
   expect_error(
     extract_function(doxygen, "ex::f", NULL),
@@ -33,7 +33,7 @@ test_that("overloaded functions", {
 
 
 test_that("error if object not found", {
-  path <- doxygen_run_one("examples/typedef-simple.hpp")
+  path <- doxygen_run_one("examples_hpp/typedef-simple.hpp")
   doxygen <- doxygen_contents$new(path)
   expect_error(
     extract_typedef(doxygen, "ex::unknown"),

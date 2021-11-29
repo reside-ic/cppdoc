@@ -27,13 +27,13 @@ clean_whitespace <- function(x) {
 test_index <- function() {
   skip_if_no_doxygen()
   if (is.null(cache$test_index)) {
-    contents <- read.csv("examples/contents.csv", stringsAsFactors = FALSE)
+    contents <- read.csv("contents.csv", stringsAsFactors = FALSE)
     contents_args <- strsplit(contents$args, ";\\s*")
     contents$args <- I(rep(list(NULL), nrow(contents)))
     nms <- contents$name[contents$kind == "function"]
     i <- contents$name %in% nms[duplicated(nms)] & contents$kind == "function"
     contents$args[i] <- contents_args[i]
-    cache$test_index <- index_build("examples", "examples_cpp", "cpptest",
+    cache$test_index <- index_build("examples_hpp", "examples_cpp", "cpptest",
                                     contents, TRUE, TRUE)
   }
   cache$test_index

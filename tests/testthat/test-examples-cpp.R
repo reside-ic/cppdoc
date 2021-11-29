@@ -1,5 +1,5 @@
 test_that("Can run example", {
-  res <- example_run("examples_cpp/function-simple.cpp", "examples")
+  res <- example_run("examples_cpp/function-simple.cpp", "examples_hpp")
   expect_equal(names(res), c("name", "input", "output"))
   expect_equal(res$name, "function-simple")
   expect_equal(res$input, readLines("examples_cpp/function-simple.cpp"))
@@ -20,7 +20,7 @@ test_that("can compile simple package", {
                "Licence: CC0"),
              file.path(tmp, "DESCRIPTION"))
   dir.create(path_include, FALSE, TRUE)
-  file_copy("examples/function-simple.hpp", path_include)
+  file_copy("examples_hpp/function-simple.hpp", path_include)
   dir.create(path_examples, FALSE, TRUE)
   file_copy("examples_cpp/function-simple.cpp", path_examples)
 
@@ -29,7 +29,7 @@ test_that("can compile simple package", {
   expect_equal(
     res,
     list("function-simple" =
-           example_run("examples_cpp/function-simple.cpp", "examples")))
+           example_run("examples_cpp/function-simple.cpp", "examples_hpp")))
 
   path_rds <- file.path(tmp, "inst/cppdoc/examples/index.rds")
   expect_true(file.exists(path_rds))

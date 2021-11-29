@@ -12,16 +12,16 @@ test_that("can build simple index, and find things in it", {
                          name = c("ex::add", "ex::f", "ex::f"),
                          args = I(list(NULL, "double", c("double", "double"))),
                          stringsAsFactors = FALSE)
-  index <- index_build("examples", NULL, "cpptest", contents, TRUE, TRUE)
+  index <- index_build("examples_hpp", NULL, "cpptest", contents, TRUE, TRUE)
   expect_s3_class(index, "cppdoc_index")
   expect_equal(nrow(index), 3)
 
   expect_equal(
     index_find(index, "function", "ex::add", NULL),
-    cmp("examples/function-simple.hpp", "ex::add", NULL))
+    cmp("examples_hpp/function-simple.hpp", "ex::add", NULL))
   expect_equal(
     index_find(index, "function", "ex::f", "double"),
-    cmp("examples/function-overload.hpp", "ex::f", "double"))
+    cmp("examples_hpp/function-overload.hpp", "ex::f", "double"))
 
   expect_error(
     index_find(index, "function", "ex::f", NULL),
@@ -40,7 +40,7 @@ test_that("Can locate calls in a knitr document", {
   tmp <- tempfile()
   on.exit(unlink(tmp, recursive = TRUE))
   dir.create(tmp)
-  file.copy("examples/simple.Rmd", tmp)
+  file.copy("examples_rmd/simple.Rmd", tmp)
 
   contents <- index_search_rmd(tmp, TRUE)
   expect_equal(nrow(contents), 2L)

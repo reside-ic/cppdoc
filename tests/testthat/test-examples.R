@@ -1,6 +1,6 @@
 test_that("can read simple typedef", {
-  path <- doxygen_run_one("examples/typedef-simple.hpp")
-  ref <- read_reference("examples/typedef-simple.txt")
+  path <- doxygen_run_one("examples_hpp/typedef-simple.hpp")
+  ref <- read_reference("examples_hpp/typedef-simple.txt")
   contents <- data.frame(kind = "typedef", name = "ex::real_type")
   x <- extract(path, NULL, contents)[[1L]]
 
@@ -19,8 +19,8 @@ test_that("can read simple typedef", {
 
 
 test_that("can read undocumented typedef", {
-  path <- doxygen_run_one("examples/typedef-undocumented.hpp")
-  ref <- read_reference("examples/typedef-undocumented.txt")
+  path <- doxygen_run_one("examples_hpp/typedef-undocumented.hpp")
+  ref <- read_reference("examples_hpp/typedef-undocumented.txt")
   contents <- data.frame(kind = "typedef", name = "ex::int_type")
   x <- extract(path, NULL, contents)[[1L]]
 
@@ -36,8 +36,8 @@ test_that("can read undocumented typedef", {
 
 
 test_that("can read simple function", {
-  path <- doxygen_run_one("examples/function-simple.hpp")
-  ref <- read_reference("examples/function-simple.txt")
+  path <- doxygen_run_one("examples_hpp/function-simple.hpp")
+  ref <- read_reference("examples_hpp/function-simple.txt")
   contents <- data.frame(kind = "function", name = "ex::add")
   x <- extract(path, NULL, contents)[[1L]]
 
@@ -54,8 +54,8 @@ test_that("can read simple function", {
 
 
 test_that("Can render a templated function", {
-  path <- doxygen_run_one("examples/function-templated.hpp")
-  ref <- read_reference("examples/function-templated.txt")
+  path <- doxygen_run_one("examples_hpp/function-templated.hpp")
+  ref <- read_reference("examples_hpp/function-templated.txt")
   contents <- data.frame(kind = "function", name = "ex::generic")
   x <- extract(path, NULL, contents)[[1]]
 
@@ -73,8 +73,8 @@ test_that("Can render a templated function", {
 
 
 test_that("can read simple define", {
-  path <- doxygen_run_one("examples/define-simple.hpp")
-  ref <- read_reference("examples/define-simple.txt")
+  path <- doxygen_run_one("examples_hpp/define-simple.hpp")
+  ref <- read_reference("examples_hpp/define-simple.txt")
   contents <- data.frame(kind = "define", name = "CONSTANT")
   x <- extract(path, NULL, contents)[[1]]
 
@@ -87,8 +87,8 @@ test_that("can read simple define", {
 
 
 test_that("can read simple enum", {
-  path <- doxygen_run_one("examples/enum-simple.hpp")
-  ref <- read_reference("examples/enum-simple.txt")
+  path <- doxygen_run_one("examples_hpp/enum-simple.hpp")
+  ref <- read_reference("examples_hpp/enum-simple.txt")
   contents <- data.frame(kind = "enum", name = "ex::fruit")
   res <- extract(path, NULL, contents)
 
@@ -106,8 +106,8 @@ test_that("can read simple enum", {
 
 
 test_that("can read simple class", {
-  path <- doxygen_run_one("examples/class-simple.hpp")
-  ref <- read_reference("examples/class-simple.txt")
+  path <- doxygen_run_one("examples_hpp/class-simple.hpp")
+  ref <- read_reference("examples_hpp/class-simple.txt")
   contents <- data.frame(kind = "class", name = "ex::test")
   x <- extract(path, NULL, contents)[[1]]
 
@@ -123,8 +123,8 @@ test_that("can read simple class", {
 
 
 test_that("Can render class fields", {
-  path <- doxygen_run_one("examples/class-field.hpp")
-  ref <- read_reference("examples/class-field.txt")
+  path <- doxygen_run_one("examples_hpp/class-field.hpp")
+  ref <- read_reference("examples_hpp/class-field.txt")
   contents <- data.frame(kind = "class", name = "ex::has_field")
   x <- extract(path, NULL, contents)[[1]]
 
@@ -138,8 +138,8 @@ test_that("Can render class fields", {
 
 
 test_that("Can render class typedefs", {
-  path <- doxygen_run_one("examples/class-typedef.hpp")
-  ref <- read_reference("examples/class-typedef.txt")
+  path <- doxygen_run_one("examples_hpp/class-typedef.hpp")
+  ref <- read_reference("examples_hpp/class-typedef.txt")
   contents <- data.frame(kind = "class", name = "ex::has_typedef")
   x <- extract(path, NULL, contents)[[1]]
 
