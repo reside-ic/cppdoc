@@ -1,0 +1,26 @@
+```c++
+template <typename T, typename U>
+T ex::generic(const T &x, U y)
+```
+
+Do a thing, but generically
+
+**Template parameters**
+
+* **`T`**: The first type
+
+* **`U`**: The second type
+
+
+
+**Parameters**
+
+* **`x`**: The first argument
+
+* **`y`**: The second argument
+
+
+
+**Returns**
+
+A thing of the same type as the first argument

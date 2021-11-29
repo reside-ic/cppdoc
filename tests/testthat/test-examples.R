@@ -53,6 +53,25 @@ test_that("can read simple function", {
 })
 
 
+test_that("Can render a templated function", {
+  path <- doxygen_run_one("examples/function-templated.hpp")
+  ref <- read_reference("examples/function-templated.txt")
+  contents <- data.frame(kind = "function", name = "ex::generic")
+  x <- extract(path, contents)[[1]]
+
+  expect_equal(x$tparam, list("typename T", "typename U"))
+  expect_equal(x$name, "ex::generic")
+  expect_equal(x$value, "T")
+  expect_equal(x$param, list(list(type = "const T &", name = "x"),
+                             list(type = "U", name = "y")))
+  ## TODO: would be nice to get the exact whitespace here
+  expect_equal(x$args, "(const T &x, U y)")
+  expect_null(x$brief)
+
+  expect_equal(clean_whitespace(render_function(x)), ref)
+})
+
+
 test_that("can read simple define", {
   path <- doxygen_run_one("examples/define-simple.hpp")
   ref <- read_reference("examples/define-simple.txt")
