@@ -187,6 +187,7 @@ parse_para <- function(x) {
            text = parse_text(el),
            computeroutput = parse_computeroutput(el),
            bold = parse_bold(el),
+           emphasis = parse_emphasis(el),
            parameterlist = parse_parameterlist(el),
            simplesect = parse_simplesect(el),
            itemizedlist = parse_itemizedlist(el),
@@ -215,6 +216,11 @@ parse_bold <- function(x) {
 }
 
 
+parse_emphasis <- function(x) {
+  parse_markup(x, "*", "emphasis")
+}
+
+
 parse_ref <- function(x) {
   list(type = "text", value = xml2::xml_text(x))
 }
@@ -227,6 +233,7 @@ parse_markup <- function(x, md, name) {
     switch(tag,
            text = parse_text(el),
            ref = parse_ref(el),
+           bold = parse_bold(el),
            stop(sprintf("unsupported tag '%s' within markup '%s'", tag, name)))
   }
 
