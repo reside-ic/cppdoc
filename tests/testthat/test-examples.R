@@ -101,3 +101,18 @@ test_that("can read simple enum", {
 
   expect_equal(clean_whitespace(render_class(x)), ref)
 })
+
+
+test_that("Can render class fields", {
+  path <- doxygen_run_one("examples/class-field.hpp")
+  ref <- read_reference("examples/class-field.txt")
+  contents <- data.frame(kind = "class", name = "ex::test")
+  x <- extract(path, contents)[[1]]
+
+  expect_equal(x$name, "ex::test")
+
+  expect_length(x$sections, 1)
+  expect_equal(x$sections[[1]]$kind, "public-attrib")
+
+  expect_equal(clean_whitespace(render_class(x)), ref)
+})

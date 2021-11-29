@@ -1,0 +1,13 @@
+```c++
+class ex::test
+```
+
+**Public fields**
+
+```c++
+int x
+```
+
+```c++
+double y[5]
+```
