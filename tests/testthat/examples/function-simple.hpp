@@ -4,6 +4,8 @@ namespace ex {
 /// @param x The first number
 /// @param y The second number
 /// @return A number
-double add(double x, double y);
+double add(double x, double y) {
+  return x + y;
+}
 
 }

@@ -18,15 +18,8 @@
 ##' @export
 cppdoc_index_package <- function(path = ".", quiet = FALSE,
                                  quiet_doxygen = TRUE) {
-  path_description <- file.path(path, "DESCRIPTION")
-  path_include <- file.path(path, "inst/include")
-  if (!file.exists(path_description)) {
-    stop("This does not look like a package")
-  }
-  if (!file.exists(path_include)) {
-    stop("This package does not have any include files")
-  }
-  package <- read.dcf(file.path(path, "DESCRIPTION"), "Package")[[1]]
+  package <- check_package(path)
+  path_include <- check_package_include(path)
 
   contents <- index_search_rmd(path, quiet)
 

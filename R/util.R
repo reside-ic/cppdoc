@@ -53,3 +53,39 @@ unimplemented <- function(test, reason) {
     stop(paste("cppdoc unimplemented:", reason))
   }
 }
+
+
+with_dir <- function(path, expr) {
+  owd <- setwd(path)
+  on.exit(setwd(owd))
+  force(expr)
+}
+
+
+## R's file.copy warns when it fails to do the one thing it is meant
+## to, then continues, making it almost impossible to program against
+file_copy <- function(..., overwrite = TRUE) {
+  ok <- file.copy(..., overwrite = overwrite)
+  if (any(!ok)) {
+    stop("Error copying files")
+  }
+  ok
+}
+
+
+check_package <- function(path) {
+  path_description <- file.path(path, "DESCRIPTION")
+  if (!file.exists(path_description)) {
+    stop("This does not look like a package")
+  }
+  read.dcf(file.path(path, "DESCRIPTION"), "Package")[[1]]
+}
+
+
+check_package_include <- function(path) {
+  path_include <- file.path(path, "inst/include")
+  if (!file.exists(path_include)) {
+    stop("This package does not have any include files")
+  }
+  path_include
+}
