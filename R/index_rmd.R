@@ -50,6 +50,9 @@ parse_rmd_cppdoc <- function(path) {
 
 
 parse_rmd_cppdoc_entry <- function(x) {
+  if (!is.recursive(x)) {
+    stop(sprintf("Invalid statement '%s' within cppdoc block", deparse(x)))
+  }
   fn <- as.character(x[[1]])
   if (!grepl("^cppdoc_", fn)) {
     stop(sprintf("Invalid function '%s' within cppdoc block", fn))
@@ -60,7 +63,7 @@ parse_rmd_cppdoc_entry <- function(x) {
   args <- match.call(match.fun(fn), x, envir = env)
 
   if (!is.character(args$name)) {
-    stop("'name' must be character in call to '%s'", fn)
+    stop(sprintf("'name' must be character in call to '%s'", fn))
   }
   args <- lapply(args[-1L], eval, baseenv())
 

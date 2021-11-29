@@ -1,0 +1,21 @@
+---
+title: "Simple example"
+output: rmarkdown::html_vignette
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  error = FALSE,
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5)
+cppdoc::cppdoc_register(cppdoc:::cache$test_index)
+```
+
+Examples for testing `cppdoc`
+
+
+```{cppdoc}
+cppdoc_function("ex::add")
+```
