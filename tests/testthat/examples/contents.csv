@@ -1,0 +1,13 @@
+"kind","name","args"
+"class","ex::test",
+"class","ex::has_field",
+"class","ex::has_typedef",
+"enum","ex::fruit",
+"function","ex::f","double"
+"function","ex::f","double;double"
+"function","ex::f","const double *",
+"function","ex::f",""
+"function","ex::add",""
+"typedef","ex::real_type",
+"typedef","ex::int_type",
+"define","CONSTANT"

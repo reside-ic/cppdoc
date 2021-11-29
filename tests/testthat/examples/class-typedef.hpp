@@ -1,6 +1,6 @@
 namespace ex {
 
-class test {
+class has_typedef {
 public:
   using real_type = double;
   typedef int int_type;

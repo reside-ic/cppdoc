@@ -86,7 +86,7 @@ test_that("can read simple enum", {
 })
 
 
-test_that("can read simple enum", {
+test_that("can read simple class", {
   path <- doxygen_run_one("examples/class-simple.hpp")
   ref <- read_reference("examples/class-simple.txt")
   contents <- data.frame(kind = "class", name = "ex::test")
@@ -106,10 +106,10 @@ test_that("can read simple enum", {
 test_that("Can render class fields", {
   path <- doxygen_run_one("examples/class-field.hpp")
   ref <- read_reference("examples/class-field.txt")
-  contents <- data.frame(kind = "class", name = "ex::test")
+  contents <- data.frame(kind = "class", name = "ex::has_field")
   x <- extract(path, contents)[[1]]
 
-  expect_equal(x$name, "ex::test")
+  expect_equal(x$name, "ex::has_field")
 
   expect_length(x$sections, 1)
   expect_equal(x$sections[[1]]$kind, "public-attrib")
@@ -121,10 +121,10 @@ test_that("Can render class fields", {
 test_that("Can render class typedefs", {
   path <- doxygen_run_one("examples/class-typedef.hpp")
   ref <- read_reference("examples/class-typedef.txt")
-  contents <- data.frame(kind = "class", name = "ex::test")
+  contents <- data.frame(kind = "class", name = "ex::has_typedef")
   x <- extract(path, contents)[[1]]
 
-  expect_equal(x$name, "ex::test")
+  expect_equal(x$name, "ex::has_typedef")
 
   expect_length(x$sections, 1)
   expect_equal(x$sections[[1]]$kind, "public-type")

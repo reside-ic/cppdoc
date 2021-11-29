@@ -1,6 +1,6 @@
 namespace ex {
 
-class test {
+class has_field {
 public:
   int x;
   double y[5];

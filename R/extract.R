@@ -57,7 +57,7 @@ extract <- function(path, contents) {
 
 extract_class <- function(doxygen, name) {
   index <- doxygen$index
-  i <- check_index(index$name == name & index$kind == "class", name, "class")
+  i <- check_index(index$name == name & index$kind == "class", "class", name)
   x <- doxygen$read(doxygen$index$refid[[i]])
   parse_class(x, name)
 }

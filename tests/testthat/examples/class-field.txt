@@ -1,5 +1,5 @@
 ```c++
-class ex::test
+class ex::has_field
 ```
 
 **Public fields**

@@ -44,15 +44,12 @@ cppdoc_index_package <- function(path = ".", quiet = FALSE,
 
 
 index_load <- function(package, reload = FALSE) {
-  if (reload || !(package %in% names(projects))) {
+  if (reload || !(package %in% names(cache$packages))) {
     path <- system.file("cppdoc/index.rds", package = package, mustWork = TRUE)
-    projects[[package]] <- readRDS(path)
+    cache$packages[[package]] <- readRDS(path)
   }
-  projects[[package]]
+  cache$packages[[package]]
 }
-
-
-projects <- new.env(parent = emptyenv())
 
 
 index_get <- function(object) {
