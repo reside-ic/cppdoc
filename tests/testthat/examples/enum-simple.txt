@@ -1,5 +1,3 @@
-cppdoc >> ex::fruit
----
 ```c++
 enum class ex::fruit
 ```

@@ -13,22 +13,7 @@ test_para <- function(text) {
 
 
 read_reference <- function(filename) {
-  txt <- readLines(filename)
-  re <- "cppdoc >> (.*)"
-  i <- grep(re, txt)
-  out <- unname(split(txt, findInterval(seq_along(txt), i)))
-
-  f <- function(x) {
-    stopifnot(grepl(re, x[[1]]),
-              grepl("^---+\\s*$", x[[2]]))
-    name <- sub(re, "\\1", x[[1]])
-    value <- clean_whitespace(trimws(x[-(1:2)]))
-    list(name = name, value = value)
-  }
-
-  res <- lapply(out, f)
-  set_names(lapply(res, "[[", "value"),
-            vcapply(res, "[[", "name"))
+  clean_whitespace(readLines(filename))
 }
 
 

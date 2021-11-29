@@ -1,0 +1,5 @@
+```c++
+using ex::real_type = double
+```
+
+This type is documented. 
