@@ -54,7 +54,7 @@ parse_function <- function(x, name) {
   tparam <- parse_templateparamlist(
     xml2::xml_find_first(x, "templateparamlist"))
 
-  value <- linked_text(xml2::xml_find_first(x, "type"))
+  value <- parse_linked_text(xml2::xml_find_first(x, "type"))
   ## definition and args somehow optional here, don't really
   ## understand how.
   definition <- parse_definition(xml2::xml_find_first(x, "definition"))
@@ -87,22 +87,14 @@ parse_typedef <- function(x, name) {
   definition <- parse_definition(xml2::xml_find_first(x, "definition"))
   args <- parse_argsstring(xml2::xml_find_first(x, "argsstring"))
   name <- name %||% parse_name(xml2::xml_find_first(x, "name"))
-  type <- linked_text(xml2::xml_find_first(x, "type"))
+  type <- parse_linked_text(xml2::xml_find_first(x, "type"))
   brief <- parse_description(xml2::xml_find_first(x, "briefdescription"))
   detail <- parse_description(xml2::xml_find_first(x, "detaileddescription"))
 
-  ## TODO: presence of @typedef in the docstrings might break this.
-  ## TODO: function pointers are hard here
-  if (grepl("^using", definition)) {
-    definition_short <- sprintf("using %s = %s", name, type)
-  } else {
-    definition_short <- sprintf("typedef %s %s", type, name)
-  }
-
   list(tparam = tparam,
        name = name,
+       type = type,
        definition = definition,
-       definition_short = definition_short,
        args = args,
        brief = brief,
        detail = detail)
@@ -127,7 +119,7 @@ parse_enum <- function(x, name) {
 
 parse_define <- function(x, name) {
   name <- name %||% parse_name(xml2::xml_find_first(x, "name"))
-  value <- linked_text(xml2::xml_find_first(x, "initializer"))
+  value <- parse_linked_text(xml2::xml_find_first(x, "initializer"))
   brief <- parse_description(xml2::xml_find_first(x, "briefdescription"))
   detail <- parse_description(xml2::xml_find_first(x, "detaileddescription"))
 
@@ -166,8 +158,29 @@ parse_class <- function(x, name) {
 
 ## For now discarding link information, we can add it back later,
 ## though not sure how really
-linked_text <- function(x) {
-  vcapply(xml2::xml_contents(x), xml2::xml_text)
+parse_linked_text <- function(x) {
+  kids <- xml2::xml_contents(x)
+  unimplemented(!all(xml2::xml_name(kids) %in% c("text", "ref")),
+                "tags other than 'text' or 'ref' in linked text")
+
+  value <- lapply(kids, parse_linked_list_element)
+  if (length(value) == 1L) {
+    ## simplify, this is the most common case
+    return(value[[1L]])
+  }
+
+  list(type = "linked_text", value = value)
+}
+
+
+parse_linked_list_element <- function(x) {
+  type <- xml2::xml_name(x)
+  if (type == "text") {
+    list(type = "text", value = xml2::xml_text(x))
+  } else { # type is "ref"
+    list(type = "link", value = xml2::xml_text(x),
+         target = xml2::xml_attr(x, "refid"))
+  }
 }
 
 
@@ -225,12 +238,19 @@ parse_emphasis <- function(x) {
 
 
 parse_ref <- function(x) {
-  list(type = "text", value = xml2::xml_text(x))
+  target <- xml2::xml_attr(x, "refid")
+
+  kids <- xml2::xml_contents(x)
+  unimplemented(length(kids) != 1 || xml2::xml_name(kids) != "text",
+                "<ref> around something other than text")
+  value <- xml2::xml_text(kids[[1]])
+
+  list(type = "link", value = value, target = target)
 }
 
 
 parse_markup <- function(x, md, name) {
-  ## Similar to parse_para
+  ## Similar to parse_para, and getting more and more similar, really.
   f <- function(el) {
     tag <- xml2::xml_name(el)
     switch(tag,
@@ -243,11 +263,12 @@ parse_markup <- function(x, md, name) {
   kids <- xml2::xml_contents(x)
   value <- simplify_text(lapply(kids, f))
 
-  unimplemented(length(value) != 1 || value[[1]]$type != "text",
-                "parse complex markup")
+  if (length(value) == 1 && value[[1]]$type %in% c("text", "link")) {
+    value[[1]]$value <- sprintf("%s%s%s", md, value[[1]]$value, md)
+    return(value[[1]])
+  }
 
-  value[[1]]$value <- sprintf("%s%s%s", md, value[[1]]$value, md)
-  value[[1]]
+  list(type = name, value = simplify_text(value))
 }
 
 
@@ -305,9 +326,10 @@ parse_templateparamlist <- function(x) {
   if (xml_is_missing(x)) {
     return(NULL)
   }
+  browser()
   ## TODO: This probably needs more work, unfortunately
   lapply(xml2::xml_find_all(x, "param/type"),
-         linked_text)
+         parse_linked_text)
 }
 
 
@@ -327,7 +349,7 @@ parse_name <- function(x) {
 
 
 parse_field <- function(x, name) {
-  value <- linked_text(xml2::xml_find_first(x, "type"))
+  value <- parse_linked_text(xml2::xml_find_first(x, "type"))
   name <- name %||% parse_name(xml2::xml_find_first(x, "name"))
   args <- parse_argsstring(xml2::xml_find_first(x, "argsstring"))
   brief <- parse_description(xml2::xml_find_first(x, "briefdescription"))
@@ -375,7 +397,7 @@ parse_param <- function(x) {
 
 
 parse_type <- function(x) {
-  linked_text(x)
+  parse_linked_text(x)
 }
 
 

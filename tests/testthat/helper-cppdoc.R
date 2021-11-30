@@ -23,7 +23,6 @@ clean_whitespace <- function(x) {
 }
 
 
-
 test_index <- function() {
   skip_if_no_doxygen()
   if (is.null(cache$test_index)) {

@@ -152,3 +152,30 @@ test_that("Can render class typedefs", {
 
   expect_equal(clean_whitespace(render_class(x)), ref)
 })
+
+
+test_that("linking", {
+  path <- doxygen_run_one("examples_hpp/class-link.hpp")
+  contents <- data.frame(kind = "class", name = "ex::has_link")
+  x <- extract(path, NULL, contents)[[1]]
+  render_class(x)
+
+  expect_equal(x$name, "ex::has_link")
+
+  expect_equal(clean_whitespace(render_class(x)), ref)
+})
+
+
+test_that("function attributes", {
+  path <- doxygen_run_one("examples_hpp/function-attributes.hpp")
+  contents <- data.frame(kind = "function", name = "ex::add_gpu")
+  x <- extract(path, NULL, contents)[[1]]
+  render_function(x)
+
+  expect_equal(x$name, "ex::add_gpu")
+
+  ## We need to rewrite links here, which we need some help to do.
+  ## The other thing we can do is when no link map is provided just
+  ## knock them all out, I think.
+  expect_equal(clean_whitespace(render_class(x)), ref)
+})

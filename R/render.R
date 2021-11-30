@@ -1,12 +1,22 @@
 render_function <- function(x) {
   out <- collector()
 
-  decl <- paste0(x$name, x$args)
+  ## TODO: we should render a better decl here, by rendering
+  ## parameters.
+  decl <- sprintf("%s(%s)", x$name, render_params(x$param))
+
+  ## NOTE: this is zero for constructors, typically.
+  ##
+  ## TODO: need to have the ability to ignore the attributes that we
+  ## just spend time supporting...
+  ##
+  ## NOTE: I suspect that `const double&` might come out as a vector
+  ## here too?
   if (length(x$value) > 0) {
-    decl <- paste(paste(trimws(x$value), collapse = " "), decl)
+    decl <- paste(render_linked_text(x$value), decl)
   }
 
-  out$add(md_code_block(c(render_tparam(x$tparam), decl)))
+  out$add(html_code_block(c(render_tparam(x$tparam), decl)))
 
   out$add(render_brief(x$brief), TRUE)
   out$add(render_detail(x$detail), TRUE)
@@ -16,6 +26,9 @@ render_function <- function(x) {
 
 
 render_define <- function(x) {
+  message("fix rendering of value in render_define")
+  browser()
+
   out <- collector()
   out$add(md_code_block(sprintf("#define %s %s", x$name, x$value)))
   out$add(render_brief(x$brief), TRUE)
@@ -49,10 +62,22 @@ render_enum <- function(x) {
 
 render_typedef <- function(x) {
   out <- collector()
-  out$add(md_code_block(c(
-    render_tparam(x$tparam),
-    x$definition_short)))
 
+  tparam <- render_tparam(x$tparam)
+
+  ## TODO: presence of @typedef in the docstrings might break this logic
+  ##
+  ## TODO: function pointers are hard here, and will require
+  ## additional work to render correctly.
+  name <- x$name
+  type <- render_linked_text(x$type)
+  if (grepl("^using", x$definition)) {
+    definition <- sprintf("using %s = %s", name, type)
+  } else {
+    definition <- sprintf("typedef %s %s", type, name)
+  }
+
+  out$add(html_code_block(c(tparam, definition)))
   out$add(render_brief(x$brief), TRUE)
   out$add(render_detail(x$detail), TRUE)
 
@@ -63,13 +88,12 @@ render_typedef <- function(x) {
 ## TODO: Looks like we're inconsistent throughout as to if we pass
 ## $value or not, would be good to check that.
 render_para <- function(x) {
-  unimplemented(x$type != "para",
-                "render_para sent non-para object (never happens?)")
-
   out <- collector()
   for (el in x$value) {
     value <- switch(el$type,
                     "text" = el$value,
+                    "computeroutput" = render_computeroutput(el),
+                    "link" = render_link(el),
                     "parameters" = render_parameters(el),
                     "simplesect" = render_simplesect(el),
                     "itemizedlist" = render_itemizedlist(el),
@@ -77,6 +101,45 @@ render_para <- function(x) {
     out$add(value, TRUE)
   }
   out$get()
+}
+
+
+render_computeroutput <- function(x) {
+  ## We only get here if we have complex markup that we can't preserve
+  ## properly.  It would be nice to otherwise try and push a link out
+  ## as far as possible so that if we have
+  ## <code><bold><ref>...</ref></bold><code>
+
+  ## we can lift this out to order as ref/code/bold, but not really
+  ## sure how best to do that; would need to be within the parse I
+  ## think, on the simple markup tags
+  sprintf("<code>%s</code>", render_para(x))
+}
+
+
+render_link <- function(x, html = FALSE) {
+  if (html) {
+    sprintf('<a href="%s">%s</a>', x$target, x$value)
+  } else {
+    sprintf("[%s](%s)", x$value, x$target)
+  }
+}
+
+
+render_linked_text <- function(x) {
+  if (x$type == "linked_text")  {
+    paste(vcapply(x$value, render_linked_text_element), collapse = "")
+  } else {
+    render_linked_text_element(x)
+  }
+}
+
+
+render_linked_text_element <- function(x) {
+  switch(x$type,
+         text = x$value,
+         link = render_link(x, html = TRUE),
+         stop("Unexpected linked_list element"))
 }
 
 
@@ -109,6 +172,8 @@ render_tparam <- function(x) {
   if (is.null(x)) {
     NULL
   } else {
+    message("Fix render_tparam")
+    browser()
     sprintf(
       "template <%s>",
       paste(vcapply(x, identity), collapse = ", "))
@@ -162,6 +227,15 @@ render_section <- function(x) {
 }
 
 
+render_params <- function(x) {
+  args <- vcapply(x, function(el)
+    sprintf("%s %s", render_linked_text(el$type), el$name))
+  paste(args, collapse = ", ")
+}
+
+
+## This is the parameters in the description, not the declaration
+## (render_params/render_tparams)
 render_parameters <- function(x) {
   out <- collector()
   name <- switch(x$kind,
@@ -217,6 +291,8 @@ render_itemizedlist <- function(x) {
 
 
 render_field <- function(x) {
+  message("Fix value in render_field")
+  browser()
   out <- collector()
   out$add(md_code_block(sprintf("%s %s%s", x$value, x$name, x$args %||% "")))
   out$add(render_brief(x$brief), TRUE)
@@ -227,6 +303,11 @@ render_field <- function(x) {
 
 md_code_block <- function(code) {
   c("```c++", code, "```")
+}
+
+
+html_code_block <- function(code) {
+  c("<pre>", code, "</pre>")
 }
 
 
