@@ -1,0 +1,3 @@
+<pre>
+__host__ __device__ real_type ex::add_gpu(real_type x, real_type y)
+</pre>

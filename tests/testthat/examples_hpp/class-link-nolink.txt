@@ -1,0 +1,31 @@
+<pre>
+class ex::has_link
+</pre>
+
+**Public types**
+
+<pre>
+using real_type = double
+</pre>
+
+The type used for floating point values.
+
+**Public methods**
+
+<pre>
+real_type f()
+</pre>
+
+Carry out some calculation.
+
+<pre>
+real_type g(real_type x)
+</pre>
+
+Additional calculations
+
+**Parameters**
+
+* **`x`**: A real_type, possibly from
+
+`f()`

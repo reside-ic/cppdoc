@@ -153,58 +153,23 @@ test_that("Can render class typedefs", {
 test_that("linking", {
   path <- doxygen_run_one("examples_hpp/class-link.hpp")
   contents <- data.frame(kind = "class", name = "ex::has_link")
+  control <- test_link_control(path)
 
-  ## We need to do something here to remap links.
-  ##
-  ## The core class ends here ends up as
-  ## > 'classex_1_1has__link'
-  ## and the
-  ## real_type > classex_1_1has__link_1a02a32e672d966804d3d3d17c8e6bae64
-  ## f         > classex_1_1has__link_1a0a84fcb43ff68b8343502941d7fcaf89
-  ## g         > classex_1_1has__link_1a7e95c4adf201b650bc42b9e10bdc1057
-  ##
-  ## These values might be hashes? in any case they're pretty
-  ## annoying, and I don't see how determinstic they will be
-  ##
-  ## We can easily enough derive sensible names if we need to in the
-  ## index, I think.
-  ##   class-ex-has_link-type-real_type
-  ##   class-ex-has_link-method-f
-  ##   class-ex-has_link-method-g
-  ## Where methods are overloaded it's a bit harder but we could just
-  ## number them really.
-
-  ## So what we want to say here is that the root type exists on this page
-  idx <- doxygen_contents$new(path)
-
-  ## So what we could do here is remap all these ids so that they are
-  ## at least reproducible.  This would be better if we sought out the
-  ## things we actually cared about because then it would be properly
-  ## reproducible.  We'll sort that out later though.
-  re <- "^(.+)([[:xdigit:]]{6})([[:xdigit:]]{26})$"
-  ids_from <- c(idx$index$refid, idx$members$member_refid)
-  i <- grep(re, ids_from)
-  ids_to <- ids_from
-  ids_to[i] <- sub(re, "\\1\\2", ids_from[i])
-  control <- list(
-    page = "index.html",
-    link = data.frame(
-      refid = ids_from,
-      page = "index.html",
-      id = ids_to,
-      stringsAsFactors = FALSE))
+  ref_link <- read_reference("examples_hpp/class-link-link.txt")
+  ref_nolink <- read_reference("examples_hpp/class-link-nolink.txt")
 
   x <- extract(path, NULL, contents)[[1]]
-  render_class(x, control)
 
-  expect_equal(x$name, "ex::has_link")
-
-  expect_equal(clean_whitespace(render_class(x, NULL)), ref)
+  expect_equal(clean_whitespace(render_class(x, control)),
+               ref_link)
+  expect_equal(clean_whitespace(render_class(x, NULL)),
+               ref_nolink)
 })
 
 
 test_that("function attributes", {
   path <- doxygen_run_one("examples_hpp/function-attributes.hpp")
+  ref <- read_reference("examples_hpp/function-attributes.txt")
   contents <- data.frame(kind = "function", name = "ex::add_gpu")
   x <- extract(path, NULL, contents)[[1]]
   render_function(x, NULL)
@@ -214,5 +179,5 @@ test_that("function attributes", {
   ## We need to rewrite links here, which we need some help to do.
   ## The other thing we can do is when no link map is provided just
   ## knock them all out, I think.
-  expect_equal(clean_whitespace(render_class(x)), ref)
+  expect_equal(clean_whitespace(render_function(x, NULL)), ref)
 })

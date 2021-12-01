@@ -48,3 +48,26 @@ has_doxygen <- function() {
 skip_if_no_doxygen <- function() {
   testthat::skip_if_not(has_doxygen(), "doxygen not found")
 }
+
+
+test_link_control <- function(path) {
+  ## So what we want to say here is that the root type exists on this page
+  idx <- doxygen_contents$new(path)
+
+  ## So what we could do here is remap all these ids so that they are
+  ## at least reproducible.  This would be better if we sought out the
+  ## things we actually cared about because then it would be properly
+  ## reproducible.  We'll sort that out later though.
+  re <- "^(.+)([[:xdigit:]]{6})([[:xdigit:]]{26})$"
+  ids_from <- c(idx$index$refid, idx$members$member_refid)
+  i <- grep(re, ids_from)
+  ids_to <- ids_from
+  ids_to[i] <- sub(re, "\\1\\2", ids_from[i])
+  list(
+    page = "index.html",
+    link = data.frame(
+      refid = ids_from,
+      page = "index.html",
+      id = ids_to,
+      stringsAsFactors = FALSE))
+}
