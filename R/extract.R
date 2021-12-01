@@ -114,8 +114,11 @@ extract_function <- function(doxygen, name, args) {
   }
 
   ## This is going to be nasty, going to use a heuristic for now:
-  found <- vcapply(ret, function(x)
-    normalise_arglist(vcapply(x$param, "[[", "type")))
+  arglist1 <- function(el) {
+    normalise_arglist(
+      vcapply(el$param, function(x) render_linked_text(x$type, NULL)))
+  }
+  found <- vcapply(ret, arglist1)
   requested <- vcapply(args, normalise_arglist, USE.NAMES = FALSE)
 
   j <- match(requested, found)
