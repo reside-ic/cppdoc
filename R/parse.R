@@ -337,10 +337,7 @@ parse_templateparamlist <- function(x) {
   if (xml_is_missing(x)) {
     return(NULL)
   }
-  browser()
-  ## TODO: This probably needs more work, unfortunately
-  lapply(xml2::xml_find_all(x, "param/type"),
-         parse_linked_text)
+  lapply(xml2::xml_find_all(x, "param"), parse_tparam)
 }
 
 
@@ -404,6 +401,19 @@ parse_param <- function(x) {
 
   list(type = parse_type(xml2::xml_find_first(x, "type")),
        name = parse_declname(xml2::xml_find_first(x, "declname")))
+}
+
+
+parse_tparam <- function(x) {
+  ## There could be more here, though I don't see them in our case:
+  ## defvalue: default value
+  nms <- xml2::xml_name(xml2::xml_contents(x))
+  req <- "type"
+  opt <- "defval"
+  ok <- all(req %in% nms) && length(setdiff(nms, c(req, opt))) == 0
+  unimplemented(!ok, "generalise parse_tparam")
+
+  list(type = parse_type(xml2::xml_find_first(x, "type")))
 }
 
 

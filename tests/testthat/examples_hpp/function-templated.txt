@@ -1,7 +1,7 @@
-```c++
+<pre>
 template <typename T, typename U>
-T ex::generic(const T &x, U y)
-```
+T ex::generic(const T & x, U y)
+</pre>
 
 Do a thing, but generically
 

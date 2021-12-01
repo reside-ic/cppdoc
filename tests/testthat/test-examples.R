@@ -49,15 +49,17 @@ test_that("can read simple function", {
 
 
 test_that("Can render a templated function", {
-  skip("FIXME")
   path <- doxygen_run_one("examples_hpp/function-templated.hpp")
   ref <- read_reference("examples_hpp/function-templated.txt")
   contents <- data.frame(kind = "function", name = "ex::generic")
   x <- extract(path, NULL, contents)[[1]]
 
-  expect_equal(x$tparam, list("typename T", "typename U"))
+  expect_equal(
+    x$tparam,
+    list(list(type = list(type = "text", value = "typename T")),
+         list(type = list(type = "text", value = "typename U"))))
   expect_equal(x$name, "ex::generic")
-  expect_equal(x$value, "T")
+  expect_equal(x$value, list(type = "text", value = "T"))
   expect_equal(
     x$param,
     list(list(type = list(type = "text", value = "const T &"), name = "x"),

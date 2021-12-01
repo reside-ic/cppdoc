@@ -226,11 +226,9 @@ render_tparam <- function(x, control) {
   if (is.null(x)) {
     NULL
   } else {
-    message("Fix render_tparam")
-    browser()
-    sprintf(
-      "template <%s>",
-      paste(vcapply(x, identity), collapse = ", "))
+    args <- vcapply(x, function(el)
+      render_linked_text(el$type, control))
+    sprintf("template <%s>", paste(args, collapse = ", "))
   }
 }
 
