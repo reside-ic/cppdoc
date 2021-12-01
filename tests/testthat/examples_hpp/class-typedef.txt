@@ -1,13 +1,13 @@
-```c++
+<pre>
 class ex::has_typedef
-```
+</pre>
 
 **Public types**
 
-```c++
+<pre>
 using real_type = double
-```
+</pre>
 
-```c++
+<pre>
 typedef int int_type
-```
+</pre>

@@ -1,14 +1,14 @@
-```c++
+<pre>
 class ex::test
-```
+</pre>
 
 A simple class with two methods.
 
 **Public methods**
 
-```c++
+<pre>
 test(double a, int b)
-```
+</pre>
 
 Construct object
 
@@ -18,15 +18,15 @@ Construct object
 
 * **`b`**: Second parameter
 
-```c++
+<pre>
 double m1()
-```
+</pre>
 
 A public method.
 
-```c++
+<pre>
 double m2(int x)
-```
+</pre>
 
 A public method with an argument
 

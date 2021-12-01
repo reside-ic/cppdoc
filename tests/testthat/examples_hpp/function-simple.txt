@@ -1,6 +1,6 @@
-```c++
+<pre>
 double ex::add(double x, double y)
-```
+</pre>
 
 Add two numbers together.
 

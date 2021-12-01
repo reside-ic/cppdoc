@@ -1,5 +1,5 @@
-```c++
+<pre>
 using ex::real_type = double
-```
+</pre>
 
 This type is documented.

@@ -1,22 +1,25 @@
-```c++
+<pre>
 enum class ex::fruit
-```
+</pre>
 
 Types of fruit available.
 
 **Values**
 
-```c++
+<pre>
 enumerator apple
-```
+</pre>
+
 Somewhat tasty.
 
-```c++
+<pre>
 enumerator banana
-```
+</pre>
+
 Quite bland.
 
-```c++
+<pre>
 enumerator cherry
-```
+</pre>
+
 Delicious.

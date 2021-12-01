@@ -51,6 +51,7 @@ parse_index_members <- function(index) {
 
 
 parse_function <- function(x, name) {
+  id <- xml2::xml_attr(x, "id")
   tparam <- parse_templateparamlist(
     xml2::xml_find_first(x, "templateparamlist"))
 
@@ -71,7 +72,8 @@ parse_function <- function(x, name) {
   ## * inbodydescription
   ## * location
 
-  list(tparam = tparam,
+  list(id = id,
+       tparam = tparam,
        name = name,
        value = value,
        param = param,
@@ -82,6 +84,7 @@ parse_function <- function(x, name) {
 
 
 parse_typedef <- function(x, name) {
+  id <- xml2::xml_attr(x, "id")
   tparam <- parse_templateparamlist(
     xml2::xml_find_first(x, "templateparamlist"))
   definition <- parse_definition(xml2::xml_find_first(x, "definition"))
@@ -91,7 +94,8 @@ parse_typedef <- function(x, name) {
   brief <- parse_description(xml2::xml_find_first(x, "briefdescription"))
   detail <- parse_description(xml2::xml_find_first(x, "detaileddescription"))
 
-  list(tparam = tparam,
+  list(id = id,
+       tparam = tparam,
        name = name,
        type = type,
        definition = definition,
@@ -102,6 +106,7 @@ parse_typedef <- function(x, name) {
 
 
 parse_enum <- function(x, name) {
+  id <- xml2::xml_attr(x, "id")
   name <- name %||% parse_name(xml2::xml_find_first(x, "name"))
   enumvalues <- lapply(xml2::xml_find_all(x, "enumvalue"),
                        parse_enumvalue)
@@ -109,7 +114,8 @@ parse_enum <- function(x, name) {
   detail <- parse_description(xml2::xml_find_first(x, "detaileddescription"))
   strong <- xml2::xml_attr(x, "strong")
 
-  list(name = name,
+  list(id = id,
+       name = name,
        strong = strong,
        enumvalues = enumvalues,
        brief = brief,
@@ -118,12 +124,14 @@ parse_enum <- function(x, name) {
 
 
 parse_define <- function(x, name) {
+  id <- xml2::xml_attr(x, "id")
   name <- name %||% parse_name(xml2::xml_find_first(x, "name"))
   value <- parse_linked_text(xml2::xml_find_first(x, "initializer"))
   brief <- parse_description(xml2::xml_find_first(x, "briefdescription"))
   detail <- parse_description(xml2::xml_find_first(x, "detaileddescription"))
 
-  list(name = name,
+  list(id = id,
+       name = name,
        value = value,
        brief = brief,
        detail = detail)
@@ -132,9 +140,10 @@ parse_define <- function(x, name) {
 
 parse_enumvalue <- function(x) {
   name <- parse_name(xml2::xml_find_first(x, "name"))
+  id <- xml2::xml_attr(x, "id")
   brief <- parse_description(xml2::xml_find_first(x, "briefdescription"))
   detail <- parse_description(xml2::xml_find_first(x, "detaileddescription"))
-  list(name = name, brief = brief, detail = detail)
+  list(id = id, name = name, brief = brief, detail = detail)
 }
 
 
@@ -143,12 +152,14 @@ parse_enumvalue <- function(x) {
 parse_class <- function(x, name) {
   x <- xml2::xml_find_first(x, "compounddef")
   name <- name %||% parse_name(xml2::xml_find_first(x, "compoundname"))
+  id <- xml2::xml_attr(x, "id")
   tparam <- parse_templateparamlist(
     xml2::xml_find_first(x, "templateparamlist"))
   brief <- parse_description(xml2::xml_find_first(x, "briefdescription"))
   detail <- parse_description(xml2::xml_find_first(x, "detaileddescription"))
   sections <- parse_sections(xml2::xml_find_all(x, "sectiondef"))
-  list(tparam = tparam,
+  list(id = id,
+       tparam = tparam,
        name = name,
        sections = sections,
        brief = brief,

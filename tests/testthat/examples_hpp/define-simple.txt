@@ -1,5 +1,5 @@
-```c++
+<pre>
 #define CONSTANT 1
-```
+</pre>
 
 Some constant.

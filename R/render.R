@@ -17,7 +17,12 @@ render_function <- function(x, control) {
     decl <- paste(render_linked_text(x$value, control), decl)
   }
 
-  out$add(html_code_block(c(render_tparam(x$tparam, control), decl)))
+  ## TODO: I think it's an open question as to if the anchor belongs
+  ## more closely in with the code, possibly within some div to tidy
+  ## it up.
+  code <- c(render_tparam(x$tparam, control), decl)
+  out$add(render_anchor(x$id, control))
+  out$add(html_code_block(code))
 
   out$add(render_brief(x$brief, control), TRUE)
   out$add(render_detail(x$detail, control), TRUE)
@@ -28,24 +33,30 @@ render_function <- function(x, control) {
 
 render_define <- function(x, control) {
   force(control)
-  message("fix rendering of value in render_define")
-  browser()
-
+  value <- render_linked_text(x$value, control)
   out <- collector()
-  out$add(md_code_block(sprintf("#define %s %s", x$name, x$value)))
+
+  ## See above, common code block pattern here
+  code <- sprintf("#define %s %s", x$name, value)
+  out$add(render_anchor(x$id, control))
+  out$add(html_code_block(code))
+
   out$add(render_brief(x$brief, control), TRUE)
   out$add(render_detail(x$detail, control), TRUE)
   out$get()
 }
 
 
-render_enum <- function(x) {
+render_enum <- function(x, control) {
   force(control)
   ## TODO: I *think* but am not sure that 'enum class' vs 'enum'
   ## changes the "strong" field here.
   type <- if (x$strong == "yes") "enum class" else "enum"
   out <- collector()
-  out$add(md_code_block(sprintf("%s %s", type, x$name)))
+
+  code <- sprintf("%s %s", type, x$name)
+  out$add(render_anchor(x$id, control))
+  out$add(html_code_block(code))
 
   out$add(render_brief(x$brief, control), TRUE)
   out$add(render_detail(x$detail, control), TRUE)
@@ -81,7 +92,10 @@ render_typedef <- function(x, control) {
     definition <- sprintf("typedef %s %s", type, name)
   }
 
-  out$add(html_code_block(c(tparam, definition)))
+  code <- c(tparam, definition)
+  out$add(render_anchor(x$id, control))
+  out$add(html_code_block(code))
+
   out$add(render_brief(x$brief, control), TRUE)
   out$add(render_detail(x$detail, control), TRUE)
 
@@ -123,22 +137,30 @@ render_computeroutput <- function(x, control) {
 }
 
 
-render_link_target <- function(target, control) {
+render_link_target <- function(target, control, anchor = FALSE) {
   if (is.null(control$link)) {
     return(NULL)
   }
-  i <- match(target, control$link$from)
+  i <- match(target, control$link$refid)
   if (is.na(i)) {
     return(NULL)
   }
-  control$link$to[[i]]
+  id <- control$link$id[[i]]
+  if (anchor) {
+    return(id)
+  }
+  if (control$link$page[[i]] == control$page) {
+    page <- ""
+  } else {
+    page <- control$link$page[[i]]
+  }
+  sprintf("%s#%s", page, id)
 }
 
 
 render_link <- function(x, control, html = FALSE) {
   force(control)
   target <- render_link_target(x$target, control)
-  browser()
   if (is.null(target)) {
     x$value
   } else if (html) {
@@ -172,8 +194,11 @@ render_linked_text_element <- function(x, control) {
 render_class <- function(x, control) {
   force(control)
   out <- collector()
-  out$add(md_code_block(c(render_tparam(x$tparam, control),
-                          paste("class", x$name))))
+
+  code <- c(render_tparam(x$tparam, control),
+            paste("class", x$name))
+  out$add(render_anchor(x$id, control))
+  out$add(html_code_block(code))
 
   out$add(render_brief(x$brief, control), TRUE)
   out$add(render_detail(x$detail, control), TRUE)
@@ -213,10 +238,17 @@ render_tparam <- function(x, control) {
 render_enumvalue <- function(x, control) {
   force(control)
   ## TODO: add a div around this, probably around many other things...
-  ## TODO: might not want enumerator here?
-  c(md_code_block(sprintf("enumerator %s", x$name)),
-    render_paras(x$brief, control),
-    render_paras(x$detail, control))
+  ## TODO: might not want the word enumerator here?
+  out <- collector()
+
+  code <- sprintf("enumerator %s", x$name)
+  out$add(render_anchor(x$id, control))
+  out$add(html_code_block(code))
+
+  out$add(render_brief(x$brief, control), TRUE)
+  out$add(render_detail(x$detail, control), TRUE)
+
+  out$get()
 }
 
 
@@ -328,13 +360,27 @@ render_itemizedlist <- function(x, control) {
 
 render_field <- function(x, control) {
   force(control)
-  message("Fix value in render_field")
-  browser()
+
   out <- collector()
-  out$add(md_code_block(sprintf("%s %s%s", x$value, x$name, x$args %||% "")))
+
+  value <- render_linked_text(x$value, control)
+  code <- sprintf("%s %s%s", value, x$name, x$args %||% "")
+  out$add(render_anchor(x$id, control))
+  out$add(html_code_block(code))
+
   out$add(render_brief(x$brief, control), TRUE)
   out$add(render_detail(x$detail, control), TRUE)
   out$get()
+}
+
+
+render_anchor <- function(id, control) {
+  id <- render_link_target(id, control, TRUE)
+  if (is.null(id)) {
+    NULL
+  } else {
+    sprintf('<a href="%s" id="%s" class="anchor"></a>', id, id)
+  }
 }
 
 

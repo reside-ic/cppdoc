@@ -1,13 +1,13 @@
-```c++
+<pre>
 class ex::has_field
-```
+</pre>
 
 **Public fields**
 
-```c++
+<pre>
 int x
-```
+</pre>
 
-```c++
+<pre>
 double y[5]
-```
+</pre>

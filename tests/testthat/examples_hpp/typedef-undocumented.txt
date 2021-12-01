@@ -1,3 +1,3 @@
-```c++
+<pre>
 using ex::int_type = int
-```
+</pre>
