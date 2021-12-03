@@ -2,36 +2,44 @@ index_search_rmd <- function(path, quiet) {
   msg("Scanning .Rmd files for usage", quiet)
   files <- dir(path, pattern = "\\.Rmd$", recursive = TRUE)
 
-  contents <- collector_list()
-  ## TODO: eventually should track track which goes where, though this
-  ## requires additional work to work out which are ones we point at
-  ## for cross-referencing.
+  ## I don't think we need to do this, but best to be sure:
+  files <- sub("\\", "/", files, fixed = TRUE)
+
+  contents <- list()
   for (f in files) {
     filename <- file.path(path, f)
     txt <- readLines(filename)
     if (any(grepl("cppdoc::cppdoc_register", txt))) {
-      x <- parse_rmd_cppdoc(filename)
-      msg(sprintf("  - found %d entries in '%s'", length(x), f), quiet)
-      contents$append(x)
+      x <- parse_rmd_cppdoc(txt)
+      msg(sprintf("  - found %d entries in '%s'", nrow(x), f), quiet)
+      contents[[f]] <- x
     }
   }
 
-  ret <- data.frame(
-    kind = vcapply(contents$get(), "[[", "kind"),
-    name = vcapply(contents$get(), "[[", "name"),
-    args = I(lapply(contents$get(), "[[", "args")))
-  ret <- unique(ret)
+  n <- vapply(contents, nrow, integer(1))
+  ret <- do.call("rbind", contents)
   rownames(ret) <- NULL
+
+  ## Here we need to check for duplicates:
+  if (any(duplicated(ret))) {
+    stop("Need to deal with duplicate entries in index")
+    ## If we have multiple given, then all but one needs to be marked
+    ## as 'nolink' or similar so that we know not to link to it.  I
+    ## don't think this is a huge deal.  We could also deal with the
+    ## unique bits later.
+  }
+
   msg(sprintf("  - total %d unique entries", nrow(ret)), quiet)
+  ret$filename <- rep(names(contents), n)
+
   ret
 }
 
 
-parse_rmd_cppdoc <- function(path) {
+parse_rmd_cppdoc <- function(txt) {
   ## It should be possible to better here with xpath, but not sure how
   ## to make that work because of namespacing weordness
-  xml <- xml2::read_xml(commonmark::markdown_xml(readLines(path),
-                                                 sourcepos = TRUE))
+  xml <- xml2::read_xml(commonmark::markdown_xml(txt, sourcepos = TRUE))
   blocks <- xml2::xml_find_all(xml, "//d1:code_block")
   type <- xml2::xml_attr(blocks, "info")
   re <- "\\s*\\{\\s*cppdoc.*\\}"
@@ -45,7 +53,10 @@ parse_rmd_cppdoc <- function(path) {
     }
   }
 
-  out$get()
+  data.frame(
+    kind = vcapply(out$get(), "[[", "kind"),
+    name = vcapply(out$get(), "[[", "name"),
+    args = I(lapply(out$get(), "[[", "args")))
 }
 
 

@@ -107,9 +107,72 @@ index_build <- function(path_include, path_examples, package,
   msg("Running doxygen", quiet)
   doxygen_xml <- doxygen_run(path_include, package, quiet = quiet_doxygen)
   examples <- cppdoc_examples_run(path_examples, path_include, package, quiet)
+
+  i <- duplicated(contents[c("kind", "name", "args")])
+  if (any(i)) {
+    stop("Fix duplicates")
+  }
+
   msg(sprintf("Extracting %d definitions", nrow(contents)), quiet)
   value <- extract(doxygen_xml, examples, contents)
-  index <- cbind(contents, value = I(value))
+  index <- cbind(contents,
+                 value = I(value),
+                 id = vcapply(value, function(x) x$id %||% NA_character_))
+
+  ## This needs sorting out; see below
+  if (is.null(index$filename)) {
+    index$filename <- NA_character_
+  }
+
   class(index) <- c("cppdoc_index", class(index))
   index
+}
+
+
+## We might move this into the render actually because this is more
+## something that is not intrinsic to the index.
+index_target <- function(filename, mode) {
+  ## pkgdown: translate
+  ## * vignettes/<path>.Rmd -> articles/<path>.html
+  ## * <immediate-path>.Rmd -> <immidiate-path>.Rmd
+  ## knitr: translate
+  ## * vignettes/<path>.Rmd -> vignettes/<path>.html
+  ## * <immediate-path>.Rmd -> NA
+  re_vignette <- "^vignettes/(.+)\\.Rmd$"
+  re_toplevel <- "^([^/]+)\\.Rmd$"
+
+  is_vignette <- grepl(re_vignette, filename)
+  is_toplevel <- grepl(re_toplevel, filename)
+
+  target <- rep(NA_character_, length(filename))
+  if (mode == "pkgdown") {
+    target[is_vignette] <-
+      sub(re_vignette, "articles/\\1.html", filename[is_vignette])
+    target[is_toplevel] <-
+      sub(re_toplevel, "\\1.html", filename[is_toplevel])
+  } else {
+    target[is_vignette] <-
+      sub(re_vignette, "vignettes/\\1.html", filename[is_vignette])
+  }
+
+  target
+}
+
+
+index_compute_links <- function(index, current) {
+  if (is.null(current)) {
+    return(NULL)
+  }
+  ## This bit of logic works out the links, based on the current page:
+  ##
+  ## Consider rmarkdown::relative_to, might work ok
+  ##
+  ## TODO: what about missing paths here?  We return NULL in some
+  ## places and path_rel might not like that.
+  mode <- current$mode
+  path <- as.character(fs::path_rel(index_target(index$filename, mode),
+                                    index_target(current$filename, mode)))
+  path[path == "."] <- ""
+  link <- data.frame(id = index$id, path = path, stringsAsFactors = FALSE)
+  link[complete.cases(link), ]
 }

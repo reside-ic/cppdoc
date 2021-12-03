@@ -6,7 +6,7 @@ test_that("can format markdown lists", {
   contents <- data.frame(kind = "function", name = "ex::f")
   x <- extract(path, NULL, contents)[[1L]]
   expect_equal(
-    clean_whitespace(render_function(x)), ref)
+    clean_whitespace(render_function(x, NULL)), ref)
 })
 
 
@@ -16,5 +16,5 @@ test_that("Can apply basic formatting to markdown strings", {
   contents <- data.frame(kind = "function", name = "ex::f")
   x <- extract(path, NULL, contents)[[1L]]
   expect_equal(
-    clean_whitespace(render_function(x)), ref)
+    clean_whitespace(render_function(x, NULL)), ref)
 })

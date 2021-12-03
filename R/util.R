@@ -71,3 +71,8 @@ file_copy <- function(..., overwrite = TRUE) {
   }
   ok
 }
+
+
+string_starts_with <- function(x, start) {
+  substr(x, 1, nchar(start)) == start
+}

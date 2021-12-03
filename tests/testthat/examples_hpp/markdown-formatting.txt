@@ -1,6 +1,6 @@
-```c++
+<pre>
 void ex::f()
-```
+</pre>
 
 A function that does **amazing** things:
 

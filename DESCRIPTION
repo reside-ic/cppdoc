@@ -17,6 +17,7 @@ SystemRequirements: doxygen
 Imports:
     R6,
     commonmark,
+    fs,
     knitr,
     xml2
 Suggests:

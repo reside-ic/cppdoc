@@ -141,20 +141,22 @@ render_link_target <- function(target, control, anchor = FALSE) {
   if (is.null(control$link)) {
     return(NULL)
   }
-  i <- match(target, control$link$refid)
-  if (is.na(i)) {
+  ## here, we should treat classes specially, or equivalently exact
+  ## matches. Not sure though that this is going to work for nested
+  ## classes but it might...
+  i <- string_starts_with(target, control$link$id)
+  unimplemented(sum(i) > 1,
+                "Ambiguous link match")
+
+  if (!any(i)) {
     return(NULL)
   }
-  id <- control$link$id[[i]]
+  id <- control$link$id[[which(i)]]
   if (anchor) {
-    return(id)
-  }
-  if (control$link$page[[i]] == control$page) {
-    page <- ""
+    id
   } else {
-    page <- control$link$page[[i]]
+    sprintf("%s#%s", control$link$path[[i]], id)
   }
-  sprintf("%s#%s", page, id)
 }
 
 
@@ -377,7 +379,7 @@ render_anchor <- function(id, control) {
   if (is.null(id)) {
     NULL
   } else {
-    sprintf('<a href="%s" id="%s" class="anchor"></a>', id, id)
+    sprintf('<a href="#%s" id="%s" class="anchor"></a>', id, id)
   }
 }
 

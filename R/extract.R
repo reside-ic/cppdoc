@@ -32,6 +32,7 @@ extract <- function(path, examples, contents) {
 
   ret <- vector("list", nrow(contents))
 
+  ## TODO: make this accept options to control linkage?
   contents$index <- seq_len(nrow(contents))
   key <- paste(contents$kind, contents$name, sep = "\r")
   contents_split <- unname(split(contents, key))
