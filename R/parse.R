@@ -175,7 +175,7 @@ parse_linked_text <- function(x) {
                 "tags other than 'text' or 'ref' in linked text")
 
   value <- lapply(kids, parse_linked_list_element)
-  if (length(value) == 1L) {
+  if (length(value) == 1L && value[[1]]$type == "text") {
     ## simplify, this is the most common case
     return(value[[1L]])
   }

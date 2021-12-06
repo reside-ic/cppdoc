@@ -1,11 +1,11 @@
-<a href="classex_1_1has__link" id="classex_1_1has__link" class="anchor"></a>
+<a href="#classex_1_1has__link" id="classex_1_1has__link" class="anchor"></a>
 <pre>
 class ex::has_link
 </pre>
 
 **Public types**
 
-<a href="classex_1_1has__link_1a02a32e" id="classex_1_1has__link_1a02a32e" class="anchor"></a>
+<a href="#classex_1_1has__link" id="classex_1_1has__link" class="anchor"></a>
 <pre>
 using real_type = double
 </pre>
@@ -14,16 +14,16 @@ The type used for floating point values.
 
 **Public methods**
 
-<a href="classex_1_1has__link_1a0a84fc" id="classex_1_1has__link_1a0a84fc" class="anchor"></a>
+<a href="#classex_1_1has__link" id="classex_1_1has__link" class="anchor"></a>
 <pre>
-<a href="#classex_1_1has__link_1a02a32e">real_type</a> f()
+<a href="index.html#classex_1_1has__link">real_type</a> f()
 </pre>
 
 Carry out some calculation.
 
-<a href="classex_1_1has__link_1a7e95c4" id="classex_1_1has__link_1a7e95c4" class="anchor"></a>
+<a href="#classex_1_1has__link" id="classex_1_1has__link" class="anchor"></a>
 <pre>
-<a href="#classex_1_1has__link_1a02a32e">real_type</a> g(<a href="#classex_1_1has__link_1a02a32e">real_type</a> x)
+<a href="index.html#classex_1_1has__link">real_type</a> g(<a href="index.html#classex_1_1has__link">real_type</a> x)
 </pre>
 
 Additional calculations
@@ -32,4 +32,4 @@ Additional calculations
 
 * **`x`**: A real_type, possibly from
 
-[`f()`](#classex_1_1has__link_1a0a84fc)
+[`f()`](index.html#classex_1_1has__link)

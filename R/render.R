@@ -151,11 +151,12 @@ render_link_target <- function(target, control, anchor = FALSE) {
   if (!any(i)) {
     return(NULL)
   }
-  id <- control$link$id[[which(i)]]
+  i <- which(i)
+  id <- control$link$id[[i]]
   if (anchor) {
     id
   } else {
-    sprintf("%s#%s", control$link$path[[i]], id)
+    sprintf("%s#%s", control$link$page[[i]], id)
   }
 }
 
