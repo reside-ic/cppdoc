@@ -11,7 +11,7 @@ test_that("overloaded functions", {
 
   types <- function(x) {
     lapply(x, function(el)
-      vcapply(el$param, "[[", "type"))
+      vcapply(el$param, function(x) x$type$value))
   }
 
   expect_equal(
