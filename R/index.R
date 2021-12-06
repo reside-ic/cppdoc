@@ -25,7 +25,7 @@ cppdoc_index_package <- function(path = ".",
 
   contents <- index_search_rmd(path, quiet)
 
-  if (nrow(contents) == 0) {
+  if (is.null(contents) || nrow(contents) == 0) {
     stop(sprintf("Did not find any cppdoc usage in package '%s'", package))
   }
 
