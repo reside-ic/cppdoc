@@ -16,7 +16,6 @@
 cppdoc_register <- function(package) {
   ret <- knitr::knit_engines$set(cppdoc = cppdoc_engine)
   if (!is.null(package)) {
-    browser()
     index <- index_load(package)
     knitr::opts_chunk$set(cppdoc_package = package)
   }
