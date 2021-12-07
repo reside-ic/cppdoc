@@ -33,6 +33,10 @@ test_that("can build simple index, and find things in it", {
   expect_error(
     index_find(index, "function", "ex::unknown_function", NULL),
     "Lookup failure did not find function 'ex::unknown_function'")
+
+  expect_error(
+    index_find(index, "example", "some-ex", NULL),
+    "Lookup failure did not find example 'some-ex'")
 })
 
 
