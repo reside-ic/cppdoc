@@ -30,8 +30,4 @@ test_that("can compile simple package", {
     res,
     list("function-simple" =
            example_run("examples_cpp/function-simple.cpp", "examples_hpp")))
-
-  path_rds <- file.path(tmp, "inst/cppdoc/examples/index.rds")
-  expect_true(file.exists(path_rds))
-  expect_equal(readRDS(path_rds), res)
 })

@@ -5,7 +5,6 @@ cppdoc_examples_run <- function(path_examples, path_include, package,
     return(NULL)
   }
 
-  path_examples_output <- file.path(path_examples, "index.rds")
   files <- dir(path_examples, pattern = "\\.cpp$", full.names = TRUE)
   res <- list()
   msg(sprintf("Found %d examples in %s", length(files), package), quiet)
@@ -17,8 +16,7 @@ cppdoc_examples_run <- function(path_examples, path_include, package,
 
   out <- res$get()
   names(out) <- vcapply(out, "[[", "name")
-  saveRDS(out, path_examples_output)
-  invisible(out)
+  out
 }
 
 
