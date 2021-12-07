@@ -29,5 +29,35 @@ test_that("can compile simple package", {
   expect_equal(
     res,
     list("function-simple" =
-           example_run("examples_cpp/function-simple.cpp", "examples_hpp")))
+           list(name = "function-simple",
+                input = readLines("examples_cpp/function-simple.cpp"),
+                output = readLines("examples_cpp/function-simple.txt"))))
+})
+
+
+test_that("can extract example", {
+  path <- doxygen_run_one("examples_hpp/function-simple.hpp")
+  contents <- data.frame(kind = "example", name = "function-simple")
+  examples <- list(
+    "function-simple" =
+      list(name = "function-simple",
+           input = readLines("examples_cpp/function-simple.cpp"),
+           output = readLines("examples_cpp/function-simple.txt")))
+  expect_equal(
+    extract(path, examples, contents)[[1L]],
+    examples[[1]])
+})
+
+
+test_that("extract example throws useful error message", {
+  path <- doxygen_run_one("examples_hpp/typedef-simple.hpp")
+  contents <- data.frame(kind = "example", name = "typedef-simple")
+  examples <- list(
+    "function-simple" =
+      list(name = "function-simple",
+           input = readLines("examples_cpp/function-simple.cpp"),
+           output = readLines("examples_cpp/function-simple.txt")))
+  expect_error(
+    extract(path, examples, contents),
+    "Did not find example 'typedef-simple'")
 })
