@@ -1,6 +1,10 @@
 ---
 title: "Simple example"
 output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Simple example}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}
@@ -10,7 +14,7 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.width = 7,
   fig.height = 5)
-cppdoc::cppdoc_register(cppdoc:::cache$test_index)
+cppdoc::cppdoc_register("cppdoc.simple")
 ```
 
 Examples for testing `cppdoc`

@@ -71,3 +71,32 @@ test_link_control <- function(path) {
       id = ids_to,
       stringsAsFactors = FALSE))
 }
+
+
+test_tmp_package <- function(name) {
+  skip_if_no_doxygen()
+
+  path <- tempfile()
+  dir.create(path)
+  path_include <- file.path(path, "inst/include")
+  path_vignettes <- file.path(path, "vignettes")
+  path_examples <- file.path(path, "inst/cppdoc/examples")
+  path_index <- file.path(path, "inst/cppdoc/index.rds")
+
+  file.create(file.path(path, "NAMESPACE"))
+  writeLines(c(sprintf("Package: %s", name),
+               "Version: 0.0.1",
+               "Licence: CC0"),
+             file.path(path, "DESCRIPTION"))
+
+  dir.create(path_include, FALSE, TRUE)
+  file_copy("examples_hpp/function-simple.hpp", path_include)
+
+  dir.create(path_vignettes, FALSE, TRUE)
+  file_copy("examples_rmd/simple.Rmd", path_vignettes)
+
+  dir.create(path_examples, FALSE, TRUE)
+  file_copy("examples_cpp/function-simple.cpp", path_examples)
+
+  path
+}

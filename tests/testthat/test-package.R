@@ -75,3 +75,15 @@ test_that("can get indices", {
   expect_identical(index_get(NULL), test_index())
   expect_error(index_get(TRUE), "Invalid object provided for index")
 })
+
+
+test_that("Can render package vignette", {
+  package <- "cppdoc.simple"
+  path <- test_tmp_package(package)
+  cache$packages[[package]] <- cppdoc_index_package(path, quiet = TRUE)
+
+  withr::with_dir(
+    file.path(path, "vignettes"),
+    rmarkdown::render("simple.Rmd", quiet = TRUE))
+  expect_true(file.exists(file.path(path, "vignettes", "simple.html")))
+})
