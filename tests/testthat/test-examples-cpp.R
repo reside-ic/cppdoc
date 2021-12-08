@@ -31,7 +31,7 @@ test_that("can compile simple package", {
     list("function-simple" =
            list(name = "function-simple",
                 input = readLines("examples_cpp/function-simple.cpp"),
-                output = readLines("examples_cpp/function-simple.txt"))))
+                output = readLines("examples_cpp/function-simple.out"))))
 })
 
 
@@ -42,7 +42,7 @@ test_that("can extract example", {
     "function-simple" =
       list(name = "function-simple",
            input = readLines("examples_cpp/function-simple.cpp"),
-           output = readLines("examples_cpp/function-simple.txt")))
+           output = readLines("examples_cpp/function-simple.out")))
   expect_equal(
     extract(path, examples, contents)[[1L]],
     examples[[1]])
@@ -56,7 +56,7 @@ test_that("extract example throws useful error message", {
     "function-simple" =
       list(name = "function-simple",
            input = readLines("examples_cpp/function-simple.cpp"),
-           output = readLines("examples_cpp/function-simple.txt")))
+           output = readLines("examples_cpp/function-simple.out")))
   expect_error(
     extract(path, examples, contents),
     "Did not find example 'typedef-simple'")

@@ -41,6 +41,6 @@ test_that("Can render enum", {
 test_that("Can render example", {
   index <- test_index()
   expect_equal(
-    clean_whitespace(cppdoc_example("example", package = index)),
-    "**example support coming soon**")
+    clean_whitespace(cppdoc_example("function-simple", package = index)),
+    read_reference("examples_cpp/function-simple.txt"))
 })

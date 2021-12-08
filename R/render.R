@@ -103,6 +103,25 @@ render_typedef <- function(x, control) {
 }
 
 
+render_example <- function(x, control) {
+  ## Ideally we'd try and spot things that we can link back but that's
+  ## *really* hard because you have to get the right function in
+  ## context for overloaded ones, work out what a type is etc.
+  ##
+  ## TODO: the labels should be configurable here.
+  out <- collector()
+  out$add("**Example:**")
+  out$add(md_code_block(x$input, "c++"), TRUE)
+
+  if (length(x$output) > 0) {
+    out$add("**Output:**", TRUE)
+    out$add(md_code_block(x$output, "plain"), TRUE)
+  }
+
+  out$get()
+}
+
+
 ## TODO: Looks like we're inconsistent throughout as to if we pass
 ## $value or not, would be good to check that.
 render_para <- function(x, control) {
@@ -386,8 +405,8 @@ render_anchor <- function(id, control) {
 
 
 ## Small utilities here, probably will move file
-md_code_block <- function(code) {
-  c("```c++", code, "```")
+md_code_block <- function(code, language) {
+  c(paste0("```", language), code, "```")
 }
 
 

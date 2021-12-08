@@ -66,7 +66,9 @@ cppdoc_enum <- function(name, package = NULL) {
 ##' @param input,output Logical, indicating if input or output should
 ##'   be produced.
 cppdoc_example <- function(name, input = TRUE, output = TRUE, package = NULL) {
-  "**example support coming soon**"
+  index <- index_get(package)
+  control <- cppdoc_control(index)
+  render_example(index_find(package, "example", name), control)
 }
 
 
